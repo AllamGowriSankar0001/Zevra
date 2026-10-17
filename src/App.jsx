@@ -15,10 +15,25 @@ import ProductQuickView from './components/ProductQuickView';
 import CartDrawer       from './components/CartDrawer';
 import SearchPanel      from './components/SearchPanel';
 
-import { useCart } from './hooks/useCart';
+import AboutUs          from './pages/AboutUs';
+import ContactUs        from './pages/ContactUs';
+import FAQs             from './pages/FAQs';
+import ShippingReturns  from './pages/ShippingReturns';
+import PrivacyPolicy    from './pages/PrivacyPolicy';
+import TermsConditions  from './pages/TermsConditions';
 
+import { useCart } from './hooks/useCart';
 import './styles/global.css';
 import './styles/components.css';
+
+const INFO_PAGES = {
+  about:    AboutUs,
+  contact:  ContactUs,
+  faqs:     FAQs,
+  shipping: ShippingReturns,
+  privacy:  PrivacyPolicy,
+  terms:    TermsConditions,
+};
 
 export default function App() {
   const { items, addItem, updateQuantity, removeItem, itemCount, subtotal } = useCart();
@@ -28,27 +43,31 @@ export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [quickViewTrigger, setQuickViewTrigger] = useState(null);
+  const [currentPage, setCurrentPage] = useState(null);
 
   const handleOpenQuickView = useCallback((product, trigger) => {
-    setQuickViewProduct(product);
-    setQuickViewTrigger(trigger);
+    setQuickViewProduct(product); setQuickViewTrigger(trigger);
   }, []);
+  const handleCloseQuickView = useCallback(() => setQuickViewProduct(null), []);
+  const handleAddToCart = useCallback((p, c, s, q) => addItem(p, c, s, q), [addItem]);
 
-  const handleCloseQuickView = useCallback(() => {
-    setQuickViewProduct(null);
-  }, []);
-
-  const handleAddToCart = useCallback((product, colour, size, quantity) => {
-    addItem(product, colour, size, quantity);
-  }, [addItem]);
-
-  function scrollToCollection(categoryId = 'all') {
-    setActiveCategory(categoryId);
-    setTimeout(() => {
-      const el = document.getElementById('collection');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }, 50);
+  function scrollToCollection(id = 'all') {
+    setCurrentPage(null);
+    setActiveCategory(id);
+    setTimeout(() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' }), 50);
   }
+
+  function openPage(page) {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goHome() {
+    setCurrentPage(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const PageComponent = currentPage && INFO_PAGES[currentPage];
 
   return (
     <>
@@ -57,77 +76,31 @@ export default function App() {
         onCartOpen={() => setCartOpen(true)}
         onSearchOpen={() => setSearchOpen(true)}
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={(id) => scrollToCollection(id)}
+        onLogoClick={goHome}
       />
 
       <main id="main-content">
-        {/* 1. Hero */}
-        <Hero />
-
-        {/* 2. Marquee ticker */}
-        <MarqueeBanner />
-
-        {/* 3. Shop by Category */}
-        <ShopByCategory onCategoryChange={(id) => scrollToCollection(id)} />
-
-        {/* 4. New Arrivals */}
-        <NewArrivals
-          onQuickView={handleOpenQuickView}
-          onViewAll={() => scrollToCollection('all')}
-        />
-
-        {/* 5. The ZEVRA Edit */}
-        <ZevraEdit onExplore={() => scrollToCollection('all')} />
-
-        {/* 6. Full product collection */}
-        <ProductGrid
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-          onQuickView={handleOpenQuickView}
-        />
-
-        {/* 7. Bestsellers */}
-        <Bestsellers
-          onQuickView={handleOpenQuickView}
-          onShopAll={() => scrollToCollection('all')}
-        />
-
-        {/* 8. The ZEVRA Standard */}
-        <ZevraStandard />
-
-        {/* 9. Newsletter */}
-        <NewsletterSignup />
+        {PageComponent ? <PageComponent /> : (
+          <>
+            <Hero />
+            <MarqueeBanner />
+            <ShopByCategory onCategoryChange={scrollToCollection} />
+            <NewArrivals onQuickView={handleOpenQuickView} onViewAll={() => scrollToCollection('all')} />
+            <ZevraEdit onExplore={() => scrollToCollection('all')} />
+            <ProductGrid activeCategory={activeCategory} onCategoryChange={setActiveCategory} onQuickView={handleOpenQuickView} />
+            <Bestsellers onQuickView={handleOpenQuickView} onShopAll={() => scrollToCollection('all')} />
+            <ZevraStandard />
+            <NewsletterSignup />
+          </>
+        )}
       </main>
 
-      {/* 10. Footer */}
-      <Footer onCategoryChange={(id) => scrollToCollection(id)} />
+      <Footer onCategoryChange={scrollToCollection} onPageChange={openPage} />
 
-      {/* ── Overlays ── */}
-      {searchOpen && (
-        <SearchPanel
-          onClose={() => setSearchOpen(false)}
-          onQuickView={handleOpenQuickView}
-        />
-      )}
-
-      {cartOpen && (
-        <CartDrawer
-          items={items}
-          subtotal={subtotal}
-          onClose={() => setCartOpen(false)}
-          onUpdateQuantity={updateQuantity}
-          onRemove={removeItem}
-        />
-      )}
-
-      {quickViewProduct && (
-        <ProductQuickView
-          product={quickViewProduct}
-          onClose={handleCloseQuickView}
-          onAddToCart={handleAddToCart}
-          triggerRef={quickViewTrigger}
-        />
-      )}
+      {searchOpen && <SearchPanel onClose={() => setSearchOpen(false)} onQuickView={handleOpenQuickView} />}
+      {cartOpen && <CartDrawer items={items} subtotal={subtotal} onClose={() => setCartOpen(false)} onUpdateQuantity={updateQuantity} onRemove={removeItem} />}
+      {quickViewProduct && <ProductQuickView product={quickViewProduct} onClose={handleCloseQuickView} onAddToCart={handleAddToCart} triggerRef={quickViewTrigger} />}
     </>
   );
 }

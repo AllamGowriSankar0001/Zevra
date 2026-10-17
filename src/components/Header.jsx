@@ -50,12 +50,13 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
 
           {/* Actions */}
           <div className="header__actions">
-            <button className="btn-ghost" onClick={onSearchOpen} aria-label="Open search">
+            {/* Desktop only */}
+            <button className="btn-ghost header__desktop-only" onClick={onSearchOpen} aria-label="Open search">
               <Search size={19} strokeWidth={1.75} />
             </button>
 
             <button
-              className="btn-ghost header__cart-btn"
+              className="btn-ghost header__cart-btn header__desktop-only"
               onClick={onCartOpen}
               aria-label={`Shopping bag, ${itemCount} item${itemCount !== 1 ? 's' : ''}`}
             >
@@ -67,32 +68,14 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
               )}
             </button>
 
-            {/* Login / Sign Up */}
-            <button
-              className="header__auth-link"
-              onClick={() => setAuthModal('login')}
-              aria-label="Log in"
-            >
+            <button className="header__auth-link header__desktop-only" onClick={() => setAuthModal('login')} aria-label="Log in">
               Login
             </button>
-            <button
-              className="header__auth-signup"
-              onClick={() => setAuthModal('signup')}
-              aria-label="Create an account"
-            >
+            <button className="header__auth-signup header__desktop-only" onClick={() => setAuthModal('signup')} aria-label="Create an account">
               Sign Up
             </button>
 
-            {/* Mobile: user icon */}
-            <button
-              className="header__auth-icon btn-ghost"
-              onClick={() => setAuthModal('login')}
-              aria-label="Account"
-            >
-              <User size={19} strokeWidth={1.75} />
-            </button>
-
-            {/* Hamburger */}
+            {/* Hamburger — mobile only */}
             <button
               className="header__hamburger btn-ghost"
               onClick={() => setMenuOpen(true)}
@@ -109,6 +92,8 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
             onClose={() => setMenuOpen(false)}
             onCategoryChange={(id) => { handleNavClick(id); setMenuOpen(false); }}
             onSearchOpen={() => { setMenuOpen(false); onSearchOpen(); }}
+            onCartOpen={() => { setMenuOpen(false); onCartOpen(); }}
+            itemCount={itemCount}
             activeCategory={activeCategory}
             onLogin={() => { setMenuOpen(false); setAuthModal('login'); }}
             onSignup={() => { setMenuOpen(false); setAuthModal('signup'); }}
@@ -125,7 +110,7 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
 }
 
 /* ── Mobile Menu ── */
-function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, activeCategory, onLogin, onSignup }) {
+function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen, itemCount, activeCategory, onLogin, onSignup }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
@@ -147,6 +132,7 @@ function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, activeCateg
           </button>
         </div>
 
+        {/* Category nav */}
         <nav className="mobile-menu__nav" aria-label="Product categories">
           {navCategories.map(cat => (
             <button
@@ -162,14 +148,20 @@ function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, activeCateg
           ))}
         </nav>
 
-        <div className="mobile-menu__search">
-          <button className="btn-secondary" onClick={onSearchOpen} style={{ width: '100%', justifyContent: 'center' }}>
-            <Search size={14} strokeWidth={1.5} />
+        {/* Actions */}
+        <div className="mobile-menu__actions">
+          <button className="mobile-menu__action-btn" onClick={() => { onClose(); onSearchOpen(); }}>
+            <Search size={17} strokeWidth={1.5} />
             Search
+          </button>
+          <button className="mobile-menu__action-btn" onClick={() => { onClose(); onCartOpen(); }}>
+            <ShoppingBag size={17} strokeWidth={1.5} />
+            Bag
+            {itemCount > 0 && <span className="mobile-menu__cart-count">{itemCount}</span>}
           </button>
         </div>
 
-        {/* Auth buttons in mobile menu */}
+        {/* Auth */}
         <div className="mobile-menu__auth">
           <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onSignup}>
             Sign Up

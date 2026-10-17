@@ -1,17 +1,27 @@
 /**
  * Hero Section — ZEVRA
- * Pure full-bleed image. No overlaid text or CTA.
+ * Desktop: hero-bg.png (landscape editorial)
+ * Mobile:  hero-mobile.png (portrait boutique)
  */
 
 export default function Hero() {
   return (
     <section className="hero" aria-label="ZEVRA — premium men's clothing">
+      {/* Mobile image (portrait) */}
+      <img
+        src="/images/brand/hero-mobile.png"
+        alt="ZEVRA — premium men's clothing"
+        className="hero__bg-img hero__bg-img--mobile"
+        fetchPriority="high"
+        draggable={false}
+      />
+      {/* Desktop image (landscape) */}
       <img
         src="/images/brand/hero-bg.png"
-        alt="ZEVRA — a man in a white overshirt and dark trousers stands in front of the ZEVRA wordmark"
-        className="hero__bg-img"
-        draggable={false}
+        alt="ZEVRA — premium men's clothing"
+        className="hero__bg-img hero__bg-img--desktop"
         fetchPriority="high"
+        draggable={false}
       />
     </section>
   );
