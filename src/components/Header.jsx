@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, ShoppingBag, User } from 'lucide-react';
 import { CATEGORIES } from '../data/products';
 
-export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCategory, onCategoryChange }) {
+export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCategory, onCategoryChange, onLogoClick }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState(null); // 'login' | 'signup' | null
@@ -29,8 +29,8 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
           {/* Logo */}
           <button
             className="header__logo btn-ghost"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            aria-label="ZEVRA — go to top"
+            onClick={() => onLogoClick ? onLogoClick() : window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="ZEVRA — go to home"
           >
             <img src="/images/brand/logo.png" alt="ZEVRA Clothing Store" className="header__logo-img" />
           </button>

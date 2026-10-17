@@ -492,29 +492,8 @@
 .product-card__image-wrap:hover .product-card__img-hover    { opacity: 1; }
 
 /* Quick view bar */
-.product-card__quick-view {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: 0.75rem;
-  background: rgba(247,247,245,0.97);
-  font-family: var(--font-ui);
-  font-size: var(--text-micro);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 500;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity var(--dur-base) var(--ease-out),
-              transform var(--dur-base) var(--ease-out);
-  color: var(--color-text);
-  cursor: pointer;
-  border: none; width: 100%;
-}
-.product-card__image-wrap:hover .product-card__quick-view {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* Quick view bar — removed, card is now fully clickable */
+.product-card__quick-view { display: none; }
 
 /* Card info */
 .product-card__info {
@@ -726,15 +705,28 @@
 }
 
 @media (max-width: 640px) {
+  .quick-view-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
   .quick-view {
     flex-direction: column;
-    max-height: 96svh;
-    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    align-self: flex-end;
+    width: 100%;
+    height: 100svh;
+    max-height: 100svh;
+    border-radius: 0;
+    align-self: stretch;
   }
-  .quick-view__image-side { flex: none; height: 240px; }
-  .quick-view__info       { padding: 1.5rem 1.25rem; }
-  .quick-view-overlay     { align-items: flex-end; padding: 0; }
+  .quick-view__image-side {
+    flex: 1 1 50%;
+    height: 50svh;
+    min-height: unset;
+  }
+  .quick-view__info {
+    flex: 1 1 50%;
+    padding: 1.25rem 1.125rem;
+    overflow-y: auto;
+  }
 }
 
 /* ── Cart Drawer ────────────────────────────────────────────── */
