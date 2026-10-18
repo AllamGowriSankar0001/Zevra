@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function SignupPage({ onSuccess, onGoLogin }) {
-  const { signup, loading, error, setError } = useAuth();
+  const { register, loading, error, setError } = useAuth();
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -11,11 +11,11 @@ export default function SignupPage({ onSuccess, onGoLogin }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!name.trim())      { setError('Name is required.'); return; }
-    if (!email.trim())     { setError('Email is required.'); return; }
+    if (!name.trim())        { setError('Name is required.'); return; }
+    if (!email.trim())       { setError('Email is required.'); return; }
     if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
     if (password !== confirm) { setError('Passwords do not match.'); return; }
-    const ok = await signup(name.trim(), email.trim(), password);
+    const ok = await register(name.trim(), email.trim(), password);
     if (ok) onSuccess?.();
   }
 

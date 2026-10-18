@@ -1,12 +1,9 @@
-import { CATEGORIES } from '../data/products';
-
-const cats = CATEGORIES.filter(c => c.id !== 'all');
-
 // Duplicate enough times to fill the scroll seamlessly
 const REPEAT = 6;
-const ticker = Array.from({ length: REPEAT }, () => cats).flat();
 
-export default function CategoryNavigation({ activeCategory, onCategoryChange }) {
+export default function CategoryNavigation({ categories = [], activeCategory, onCategoryChange }) {
+  const cats = categories;
+  const ticker = Array.from({ length: REPEAT }, () => cats).flat();
   function handleClick(id) {
     onCategoryChange(id);
     const el = document.getElementById('collection');

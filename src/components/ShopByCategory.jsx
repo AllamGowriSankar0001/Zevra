@@ -1,14 +1,15 @@
-import { CATEGORIES } from '../data/products';
+import { useState } from 'react';
 
 const CATEGORY_META = {
-  shirts:   { label: 'Shirts',    sub: 'Oxford, poplin & beyond',  image: '/images/products/oxford-shirt-1.jpg',     accent: '#3A3028' },
-  tshirts:  { label: 'T-Shirts',  sub: 'Everyday essentials',      image: '/images/products/crewneck-tee-1.jpg',     accent: '#283430' },
-  jeans:    { label: 'Jeans',     sub: 'Straight, relaxed & raw',  image: '/images/products/straight-denim-1.jpg',   accent: '#282E40' },
-  trousers: { label: 'Trousers',  sub: 'Tailored & pleated',       image: '/images/products/tailored-trousers-1.jpg',accent: '#302820' },
+  shirts:   { label: 'Shirts',   sub: 'Oxford, poplin & beyond', accent: '#3A3028' },
+  tshirts:  { label: 'T-Shirts', sub: 'Everyday essentials',     accent: '#283430' },
+  jeans:    { label: 'Jeans',    sub: 'Straight, relaxed & raw', accent: '#282E40' },
+  trousers: { label: 'Trousers', sub: 'Tailored & pleated',      accent: '#302820' },
 };
 
-export default function ShopByCategory({ onCategoryChange }) {
-  const cats = CATEGORIES.filter(c => c.id !== 'all');
+export default function ShopByCategory({ categories, products, onCategoryChange }) {
+  const [failedImages, setFailedImages] = useState({});
+  const cats = categories || [];
 
   function handleClick(id) {
     onCategoryChange(id);
@@ -25,7 +26,9 @@ export default function ShopByCategory({ onCategoryChange }) {
 
       <div className="sbc__grid container">
         {cats.map(cat => {
-          const meta = CATEGORY_META[cat.id];
+          const meta = CATEGORY_META[cat.id] || { label: cat.label, sub: cat.description || 'Explore the collection', accent: '#392d32' };
+          const image = products.find(product => product.category === cat.id)?.images?.[0];
+          const imageFailed = failedImages[cat.id] === image;
           return (
             <button
               key={cat.id}
@@ -33,14 +36,15 @@ export default function ShopByCategory({ onCategoryChange }) {
               onClick={() => handleClick(cat.id)}
               aria-label={`Shop ${meta.label}`}
             >
-              <div className="sbc__card-img">
-                <img
-                  src={meta.image}
-                  alt={meta.label}
+              <div className={`sbc__card-img${image && !imageFailed ? '' : ' sbc__card-img--empty'}`}>
+                {image && !imageFailed && <img
+                  src={image}
+                  alt=""
                   className="sbc__card-photo"
                   loading="lazy"
-                  onError={e => { e.currentTarget.style.opacity = '0'; }}
-                />
+                  onError={() => setFailedImages(current => ({ ...current, [cat.id]: image }))}
+                />}
+                {(!image || imageFailed) && <span className="sbc__card-empty-mark" aria-hidden="true">Z</span>}
               </div>
               <div className="sbc__card-info" style={{ '--sbc-accent': meta.accent }}>
                 <span className="sbc__card-label">{meta.label}</span>

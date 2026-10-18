@@ -1,27 +1,30 @@
-import { useState, useEffect, useRef } from 'react';
-import { products, CATEGORIES } from '../data/products';
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ activeCategory, onCategoryChange, onQuickView }) {
+export default function ProductGrid({ categories, products, loading, error, activeCategory, onCategoryChange, onQuickView }) {
   const filtered =
     activeCategory === 'all'
       ? products
       : products.filter(p => p.category === activeCategory);
 
-  const sectionRef = useRef(null);
-
   // When category changes from outside (e.g. header nav), don't auto-scroll
   // — the Header already handles scrollIntoView. We just filter.
 
   return (
-    <section className="product-section" id="collection" ref={sectionRef} aria-labelledby="collection-title">
+    <section className="product-section" id="collection" aria-labelledby="collection-title">
       <div className="product-section__head">
         <h2 className="product-section__title" id="collection-title">New in Rotation</h2>
         <p className="product-section__sub">Explore shirts, tees, denim and trousers.</p>
 
         {/* Filters */}
         <div className="product-section__filters" role="group" aria-label="Filter by category">
-          {CATEGORIES.map(cat => (
+          <button
+            className={`product-filter-btn${activeCategory === 'all' ? ' active' : ''}`}
+            onClick={() => onCategoryChange('all')}
+            aria-pressed={activeCategory === 'all'}
+          >
+            All
+          </button>
+          {(categories || []).map(cat => (
             <button
               key={cat.id}
               className={`product-filter-btn${activeCategory === cat.id ? ' active' : ''}`}
@@ -39,9 +42,13 @@ export default function ProductGrid({ activeCategory, onCategoryChange, onQuickV
         role="list"
         aria-label={`Product grid — ${filtered.length} item${filtered.length !== 1 ? 's' : ''}`}
       >
-        {filtered.length === 0 ? (
+        {loading ? (
+          <p className="product-grid__empty" role="status">Loading the collection…</p>
+        ) : error ? (
+          <p className="product-grid__empty" role="alert">{error}</p>
+        ) : filtered.length === 0 ? (
           <p className="product-grid__empty" role="listitem">
-            No items in this category yet.
+            The collection is coming soon. Check back for new arrivals.
           </p>
         ) : (
           filtered.map(product => (

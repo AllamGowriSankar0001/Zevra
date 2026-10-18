@@ -1,10 +1,7 @@
-import { products, formatPrice } from '../data/products';
 import ProductCard from './ProductCard';
 
-// First 4 products are "new arrivals"
-const newArrivals = products.slice(0, 4);
-
-export default function NewArrivals({ onQuickView, onViewAll }) {
+export default function NewArrivals({ products, loading, error, onQuickView, onViewAll }) {
+  const newArrivals = products.slice(0, 4);
   return (
     <section className="na" aria-labelledby="na-title">
       <div className="na__head container">
@@ -18,7 +15,10 @@ export default function NewArrivals({ onQuickView, onViewAll }) {
       </div>
 
       <div className="na__grid container">
-        {newArrivals.map(product => (
+        {loading ? <p className="storefront-products__message" role="status">Loading new arrivals…</p>
+          : error ? <p className="storefront-products__message" role="alert">{error}</p>
+          : newArrivals.length === 0 ? <p className="storefront-products__message">New styles are coming soon. Stay tuned.</p>
+          : newArrivals.map(product => (
           <div key={product.id} className="na__card-wrap">
             <span className="na__badge">New</span>
             <ProductCard product={product} onQuickView={onQuickView} />

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, ShoppingBag, User } from 'lucide-react';
-import { CATEGORIES } from '../data/products';
+import { ChevronDown, Search, ShoppingBag } from 'lucide-react';
 
-export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCategory, onCategoryChange, onLogoClick, user, onLogout, onLogin, onSignup }) {
+export default function Header({ itemCount, categories, onCartOpen, onSearchOpen, activeCategory, onCategoryChange, onLogoClick, user, onLogout, onLogin, onSignup, onProfile, onOrders, onWishlist }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState(null); // 'login' | 'signup' | null
@@ -19,7 +18,7 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
     if (section) section.scrollIntoView({ behavior: 'smooth' });
   }
 
-  const navCategories = CATEGORIES.filter(c => c.id !== 'all');
+  const navCategories = categories || [];
 
   return (
     <>
@@ -70,10 +69,23 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
 
             {/* Login / Sign Up — desktop */}
             {user ? (
-              <>
-                <span className="header__user-name header__desktop-only">{user.name.split(' ')[0]}</span>
-                <button className="header__auth-link header__desktop-only" onClick={onLogout}>Logout</button>
-              </>
+              <div className="header__account-wrap">
+                <button
+                  className="header__auth-link header__desktop-only header__account-btn"
+                  aria-haspopup="true"
+                  aria-label="Open account menu"
+                >
+                  {(user.fullName || user.name || 'Account').split(' ')[0]}
+                  <ChevronDown size={14} aria-hidden="true" />
+                </button>
+                <div className="header__account-menu">
+                  <button className="header__account-item" onClick={onProfile}>My Profile</button>
+                  <button className="header__account-item" onClick={onOrders}>My Orders</button>
+                  <button className="header__account-item" onClick={onWishlist}>Wishlist</button>
+                  <div className="header__account-divider" />
+                  <button className="header__account-item header__account-item--danger" onClick={onLogout}>Logout</button>
+                </div>
+              </div>
             ) : (
               <>
                 <button className="header__auth-link header__desktop-only" onClick={onLogin}>Login</button>
@@ -97,6 +109,7 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
           <MobileMenuInline
             onClose={() => setMenuOpen(false)}
             onCategoryChange={(id) => { handleNavClick(id); setMenuOpen(false); }}
+            categories={navCategories}
             onSearchOpen={() => { setMenuOpen(false); onSearchOpen(); }}
             onCartOpen={() => { setMenuOpen(false); onCartOpen(); }}
             itemCount={itemCount}
@@ -105,6 +118,9 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
             onLogin={() => { setMenuOpen(false); onLogin(); }}
             onSignup={() => { setMenuOpen(false); onSignup(); }}
             onLogout={() => { setMenuOpen(false); onLogout(); }}
+            onProfile={() => { setMenuOpen(false); onProfile?.(); }}
+            onOrders={() => { setMenuOpen(false); onOrders?.(); }}
+            onWishlist={() => { setMenuOpen(false); onWishlist?.(); }}
           />
         )}
       </header>
@@ -118,14 +134,14 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
 }
 
 /* ── Mobile Menu ── */
-function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen, itemCount, activeCategory, user, onLogin, onSignup, onLogout }) {
+function MobileMenuInline({ onClose, categories, onCategoryChange, onSearchOpen, onCartOpen, itemCount, activeCategory, user, onLogin, onSignup, onLogout, onProfile, onOrders, onWishlist }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const navCategories = CATEGORIES.filter(c => c.id !== 'all');
+  const navCategories = categories || [];
 
   return (
     <div className="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation menu">
@@ -173,12 +189,15 @@ function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen,
         <div className="mobile-menu__auth">
           {user ? (
             <>
-              <p className="mobile-menu__user">Hi, {user.name.split(' ')[0]} 👋</p>
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onLogout}>Log Out</button>
+              <p className="mobile-menu__user">Hi, {(user.fullName || user.name || '').split(' ')[0]} 👋</p>
+              <button className="mobile-menu__nav-link" onClick={onProfile}>My Profile</button>
+              <button className="mobile-menu__nav-link" onClick={onOrders}>My Orders</button>
+              <button className="mobile-menu__nav-link" onClick={onWishlist}>Wishlist</button>
+              <button className="btn-primary" style={{ width:'100%', justifyContent:'center', marginTop:'0.5rem' }} onClick={onLogout}>Log Out</button>
             </>
           ) : (
             <>
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onSignup}>Sign Up</button>
+              <button className="btn-primary" style={{ width:'100%', justifyContent:'center' }} onClick={onSignup}>Sign Up</button>
               <button className="mobile-menu__login-link" onClick={onLogin}>Already have an account? <strong>Log in</strong></button>
             </>
           )}

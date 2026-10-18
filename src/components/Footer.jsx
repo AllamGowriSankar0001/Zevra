@@ -1,5 +1,4 @@
 import { BRAND } from '../config/brand';
-import { CATEGORIES } from '../data/products';
 
 const INFO_LINKS = [
   { label: 'About Us',          page: 'about' },
@@ -10,8 +9,8 @@ const INFO_LINKS = [
   { label: 'Terms & Conditions',page: 'terms' },
 ];
 
-export default function Footer({ onCategoryChange, onPageChange }) {
-  const cats = CATEGORIES.filter(c => c.id !== 'all');
+export default function Footer({ categories, onCategoryChange, onPageChange }) {
+  const cats = categories || [];
 
   function go(id) {
     onCategoryChange(id);

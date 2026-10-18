@@ -1,10 +1,7 @@
-import { products } from '../data/products';
 import ProductCard from './ProductCard';
 
-// Products marked as bestsellers (last 4 — spread across all categories)
-const bestsellers = [products[1], products[3], products[4], products[6]];
-
-export default function Bestsellers({ onQuickView, onShopAll }) {
+export default function Bestsellers({ products, loading, error, onQuickView, onShopAll }) {
+  const bestsellers = products.slice(0, 4);
   return (
     <section className="bs" aria-labelledby="bs-title">
       <div className="bs__head container">
@@ -18,7 +15,10 @@ export default function Bestsellers({ onQuickView, onShopAll }) {
       </div>
 
       <div className="bs__grid container">
-        {bestsellers.map(product => (
+        {loading ? <p className="storefront-products__message" role="status">Loading the collection…</p>
+          : error ? <p className="storefront-products__message" role="alert">{error}</p>
+          : bestsellers.length === 0 ? <p className="storefront-products__message">Our first collection is on its way. Please check back soon.</p>
+          : bestsellers.map(product => (
           <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
         ))}
       </div>

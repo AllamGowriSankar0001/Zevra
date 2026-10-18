@@ -1,73 +1,47 @@
-import { useState, useCallback } from 'react';
-
-const API = 'http://localhost:4001/api/auth';
-
-function getToken() {
-  try { return localStorage.getItem('zevra_token'); } catch { return null; }
-}
-function saveToken(t) {
-  try { localStorage.setItem('zevra_token', t); } catch {}
-}
-function clearToken() {
-  try { localStorage.removeItem('zevra_token'); } catch {}
-}
+import { useState, useCallback, useEffect } from 'react';
+import { authApi } from '../services/api';
 
 export function useAuth() {
-  const [user, setUser]     = useState(() => {
-    try { return JSON.parse(localStorage.getItem('zevra_user')); } catch { return null; }
-  });
-  const [loading, setLoading] = useState(false);
+  const [user,    setUser]    = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
 
-  const signup = useCallback(async (name, email, password) => {
+  // Restore session on mount
+  useEffect(() => {
+    authApi.me()
+      .then(data => setUser(data.data.user || null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const register = useCallback(async (fullName, email, password, phone) => {
     setLoading(true); setError('');
     try {
-      const res = await fetch(`${API}/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Signup failed.'); setLoading(false); return false; }
-      saveToken(data.token);
-      localStorage.setItem('zevra_user', JSON.stringify(data.user));
-      setUser(data.user);
-      setLoading(false);
+      const data = await authApi.register({ fullName, email, password, phone });
+      setUser(data.data.user);
       return true;
-    } catch {
-      setError('Cannot connect to server. Is the backend running?');
-      setLoading(false);
+    } catch (err) {
+      setError(err.message || 'Registration failed.');
       return false;
-    }
+    } finally { setLoading(false); }
   }, []);
 
   const login = useCallback(async (email, password) => {
     setLoading(true); setError('');
     try {
-      const res = await fetch(`${API}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Login failed.'); setLoading(false); return false; }
-      saveToken(data.token);
-      localStorage.setItem('zevra_user', JSON.stringify(data.user));
-      setUser(data.user);
-      setLoading(false);
+      const data = await authApi.login({ email, password });
+      setUser(data.data.user);
       return true;
-    } catch {
-      setError('Cannot connect to server. Is the backend running?');
-      setLoading(false);
+    } catch (err) {
+      setError(err.message || 'Login failed.');
       return false;
-    }
+    } finally { setLoading(false); }
   }, []);
 
-  const logout = useCallback(() => {
-    clearToken();
-    localStorage.removeItem('zevra_user');
+  const logout = useCallback(async () => {
+    try { await authApi.logout(); } catch { /* ignore */ }
     setUser(null);
   }, []);
 
-  return { user, loading, error, signup, login, logout, setError };
+  return { user, loading, error, register, login, logout, setError, setUser };
 }

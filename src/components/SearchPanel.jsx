@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Search } from 'lucide-react';
-import { products } from '../data/products';
 import ProductCard from './ProductCard';
 
-export default function SearchPanel({ onClose, onQuickView }) {
+export default function SearchPanel({ products, loading, error, onClose, onQuickView }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
@@ -76,12 +75,12 @@ export default function SearchPanel({ onClose, onQuickView }) {
       {q && (
         <div className="search-results">
           <p className="search-results__count" aria-live="polite">
-            {results.length === 0
+            {loading ? 'Loading products…' : error ? 'Products unavailable' : results.length === 0
               ? 'No results'
               : `${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"`}
           </p>
 
-          {results.length > 0 ? (
+          {error ? <p className="search-results__empty" role="alert">{error}</p> : loading ? null : results.length > 0 ? (
             <div className="search-results__grid" role="list">
               {results.map(p => (
                 <div key={p.id} role="listitem">
@@ -97,7 +96,7 @@ export default function SearchPanel({ onClose, onQuickView }) {
             </div>
           ) : (
             <p className="search-results__empty">
-              No products match "{query}".
+              {products.length === 0 ? 'Our collection is coming soon. Please check back later.' : `No products match "${query}".`}
             </p>
           )}
         </div>

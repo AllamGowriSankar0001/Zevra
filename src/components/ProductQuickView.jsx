@@ -4,6 +4,8 @@ import { formatPrice } from '../data/products';
 import ProductIllustration from './ProductIllustration';
 
 export default function ProductQuickView({ product, onClose, onAddToCart, triggerRef }) {
+  const colours = product.colours || [];
+  const sizes = product.sizes || [];
   const [selectedColour, setSelectedColour] = useState(null);
   const [selectedSize,   setSelectedSize]   = useState(null);
   const [quantity, setQuantity]             = useState(1);
@@ -55,10 +57,10 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
   }, [triggerRef]);
 
   function handleAdd() {
-    if (!selectedColour) { setError('Please select a colour.'); return; }
-    if (!selectedSize)   { setError('Please select a size.'); return; }
+    if (colours.length > 0 && !selectedColour) { setError('Please select a colour.'); return; }
+    if (sizes.length > 0 && !selectedSize) { setError('Please select a size.'); return; }
     setError('');
-    onAddToCart(product, selectedColour, selectedSize, quantity);
+    onAddToCart(product, selectedColour || '', selectedSize || '', quantity);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 2800);
   }
@@ -114,12 +116,12 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
           </div>
 
           {/* Colours */}
-          <div>
+          {colours.length > 0 && <div>
             <p className="quick-view__section-label">
               Colour{selectedColour ? ` — ${selectedColour}` : ''}
             </p>
             <div className="quick-view__colours" role="group" aria-label="Select colour">
-              {product.colours.map(c => (
+              {colours.map(c => (
                 <button
                   key={c.name}
                   className={`quick-view__colour-btn${selectedColour === c.name ? ' selected' : ''}`}
@@ -131,13 +133,13 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
                 />
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Sizes */}
-          <div>
+          {sizes.length > 0 && <div>
             <p className="quick-view__section-label">Size</p>
             <div className="quick-view__sizes" role="group" aria-label="Select size">
-              {product.sizes.map(sz => (
+              {sizes.map(sz => (
                 <button
                   key={sz}
                   className={`quick-view__size-btn${selectedSize === sz ? ' selected' : ''}`}
@@ -148,7 +150,7 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
                 </button>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Validation */}
           {error && (
