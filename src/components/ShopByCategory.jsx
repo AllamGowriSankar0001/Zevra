@@ -27,8 +27,8 @@ export default function ShopByCategory({ categories, products, onCategoryChange 
       <div className="sbc__grid container">
         {cats.map(cat => {
           const meta = CATEGORY_META[cat.id] || { label: cat.label, sub: cat.description || 'Explore the collection', accent: '#392d32' };
-          const image = products.find(product => product.category === cat.id)?.images?.[0];
-          const imageFailed = failedImages[cat.id] === image;
+          const productImage = products.find(product => product.category === cat.id)?.images?.[0];
+          const image = [cat.imageUrl, productImage].find(url => url && failedImages[url] !== true);
           return (
             <button
               key={cat.id}
@@ -36,15 +36,15 @@ export default function ShopByCategory({ categories, products, onCategoryChange 
               onClick={() => handleClick(cat.id)}
               aria-label={`Shop ${meta.label}`}
             >
-              <div className={`sbc__card-img${image && !imageFailed ? '' : ' sbc__card-img--empty'}`}>
-                {image && !imageFailed && <img
+              <div className={`sbc__card-img${image ? '' : ' sbc__card-img--empty'}`}>
+                {image && <img
                   src={image}
                   alt=""
                   className="sbc__card-photo"
-                  loading="lazy"
-                  onError={() => setFailedImages(current => ({ ...current, [cat.id]: image }))}
+                  loading="eager"
+                  onError={() => setFailedImages(current => ({ ...current, [image]: true }))}
                 />}
-                {(!image || imageFailed) && <span className="sbc__card-empty-mark" aria-hidden="true">Z</span>}
+                {!image && <span className="sbc__card-empty-mark" aria-hidden="true">Z</span>}
               </div>
               <div className="sbc__card-info" style={{ '--sbc-accent': meta.accent }}>
                 <span className="sbc__card-label">{meta.label}</span>

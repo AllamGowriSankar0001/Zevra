@@ -15,6 +15,7 @@ export default function CategoryPage({ categoryId, categories, products, loading
   const [color, setColor] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [failedHeroImages, setFailedHeroImages] = useState({});
   const meta = categories.find(category => category.id === categoryId) || {};
   const hasFilters = Boolean(size || color || minPrice || maxPrice || sort !== 'default');
   const invalidPriceRange = Boolean(minPrice && maxPrice && Number(minPrice) > Number(maxPrice));
@@ -51,7 +52,8 @@ export default function CategoryPage({ categoryId, categories, products, loading
 
   const otherCategories = categories.filter(category => category.id !== categoryId);
   const categoryProductsAll = products.filter(product => product.category === categoryId);
-  const heroImage = meta.imageUrl || categoryProductsAll[0]?.images?.[0];
+  const heroImage = [meta.imageUrl, categoryProductsAll[0]?.images?.[0]]
+    .find(image => image && failedHeroImages[image] !== true);
   const sizes = [...new Set(categoryProductsAll.flatMap(product => [
     ...(product.sizes || []),
     ...(product.variants || []).map(variant => variant.size).filter(Boolean),
@@ -64,7 +66,16 @@ export default function CategoryPage({ categoryId, categories, products, loading
   return (
     <div className="cat-page">
       <ScrollReveal>
-      <div className={`cat-page__hero${heroImage ? ' cat-page__hero--has-image' : ''}`} style={heroImage ? { backgroundImage: `url(${heroImage})` } : undefined}>
+      <div className={`cat-page__hero${heroImage ? ' cat-page__hero--has-image' : ''}`}>
+        {heroImage && (
+          <img
+            className="cat-page__hero-image"
+            src={heroImage}
+            alt=""
+            aria-hidden="true"
+            onError={() => setFailedHeroImages(current => ({ ...current, [heroImage]: true }))}
+          />
+        )}
         <div className="cat-page__hero-overlay" />
         <div className="cat-page__hero-content container">
           <p className="cat-page__eyebrow">ZEVRA Collection</p>
