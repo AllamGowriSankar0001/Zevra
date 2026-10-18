@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, ShoppingBag, User } from 'lucide-react';
 import { CATEGORIES } from '../data/products';
 
-export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCategory, onCategoryChange, onLogoClick }) {
+export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCategory, onCategoryChange, onLogoClick, user, onLogout, onLogin, onSignup }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [authModal, setAuthModal] = useState(null); // 'login' | 'signup' | null
@@ -68,12 +68,18 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
               )}
             </button>
 
-            <button className="header__auth-link header__desktop-only" onClick={() => setAuthModal('login')} aria-label="Log in">
-              Login
-            </button>
-            <button className="header__auth-signup header__desktop-only" onClick={() => setAuthModal('signup')} aria-label="Create an account">
-              Sign Up
-            </button>
+            {/* Login / Sign Up — desktop */}
+            {user ? (
+              <>
+                <span className="header__user-name header__desktop-only">{user.name.split(' ')[0]}</span>
+                <button className="header__auth-link header__desktop-only" onClick={onLogout}>Logout</button>
+              </>
+            ) : (
+              <>
+                <button className="header__auth-link header__desktop-only" onClick={onLogin}>Login</button>
+                <button className="header__auth-signup header__desktop-only" onClick={onSignup}>Sign Up</button>
+              </>
+            )}
 
             {/* Hamburger — mobile only */}
             <button
@@ -95,8 +101,10 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
             onCartOpen={() => { setMenuOpen(false); onCartOpen(); }}
             itemCount={itemCount}
             activeCategory={activeCategory}
-            onLogin={() => { setMenuOpen(false); setAuthModal('login'); }}
-            onSignup={() => { setMenuOpen(false); setAuthModal('signup'); }}
+            user={user}
+            onLogin={() => { setMenuOpen(false); onLogin(); }}
+            onSignup={() => { setMenuOpen(false); onSignup(); }}
+            onLogout={() => { setMenuOpen(false); onLogout(); }}
           />
         )}
       </header>
@@ -110,7 +118,7 @@ export default function Header({ itemCount, onCartOpen, onSearchOpen, activeCate
 }
 
 /* ── Mobile Menu ── */
-function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen, itemCount, activeCategory, onLogin, onSignup }) {
+function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen, itemCount, activeCategory, user, onLogin, onSignup, onLogout }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
@@ -163,12 +171,17 @@ function MobileMenuInline({ onClose, onCategoryChange, onSearchOpen, onCartOpen,
 
         {/* Auth */}
         <div className="mobile-menu__auth">
-          <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onSignup}>
-            Sign Up
-          </button>
-          <button className="mobile-menu__login-link" onClick={onLogin}>
-            Already have an account? <strong>Log in</strong>
-          </button>
+          {user ? (
+            <>
+              <p className="mobile-menu__user">Hi, {user.name.split(' ')[0]} 👋</p>
+              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onLogout}>Log Out</button>
+            </>
+          ) : (
+            <>
+              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={onSignup}>Sign Up</button>
+              <button className="mobile-menu__login-link" onClick={onLogin}>Already have an account? <strong>Log in</strong></button>
+            </>
+          )}
         </div>
       </div>
     </div>

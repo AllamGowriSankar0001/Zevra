@@ -21,8 +21,11 @@ import FAQs             from './pages/FAQs';
 import ShippingReturns  from './pages/ShippingReturns';
 import PrivacyPolicy    from './pages/PrivacyPolicy';
 import TermsConditions  from './pages/TermsConditions';
+import LoginPage        from './pages/LoginPage';
+import SignupPage       from './pages/SignupPage';
 
 import { useCart } from './hooks/useCart';
+import { useAuth } from './hooks/useAuth';
 import './styles/global.css';
 import './styles/components.css';
 
@@ -37,6 +40,7 @@ const INFO_PAGES = {
 
 export default function App() {
   const { items, addItem, updateQuantity, removeItem, itemCount, subtotal } = useCart();
+  const { user, logout } = useAuth();
 
   const [activeCategory, setActiveCategory] = useState('all');
   const [cartOpen,   setCartOpen]   = useState(false);
@@ -78,10 +82,16 @@ export default function App() {
         activeCategory={activeCategory}
         onCategoryChange={(id) => scrollToCollection(id)}
         onLogoClick={goHome}
+        user={user}
+        onLogout={logout}
+        onLogin={() => openPage('login')}
+        onSignup={() => openPage('signup')}
       />
 
       <main id="main-content">
-        {PageComponent ? <PageComponent /> : (
+        {currentPage === 'login'  ? <LoginPage  onSuccess={goHome} onGoSignup={() => openPage('signup')} /> :
+         currentPage === 'signup' ? <SignupPage onSuccess={goHome} onGoLogin={() => openPage('login')} /> :
+         PageComponent            ? <PageComponent /> : (
           <>
             <Hero />
             <MarqueeBanner />
