@@ -1,18 +1,6 @@
 import { useState } from 'react';
 import { adminAuthFetch, setAdminToken } from '../hooks/useAdminApi';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Boxes,
-  CheckCircle2,
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-  ShieldCheck,
-  ShoppingBag,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, EyeOff, Lock, Mail, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin({ onLogin }) {
   const [email, setEmail] = useState('admin@zevra.com');
@@ -39,133 +27,74 @@ export default function AdminLogin({ onLogin }) {
       setAdminToken(data.token);
       onLogin(data.user);
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please verify credentials.');
+      setError(err.message || 'Authentication failed. Please check credentials.');
     } finally {
       setLoading(false);
     }
   }
 
-  function handleUseDefaultCredentials() {
+  function handleUseDefaultCredentials(e) {
+    e.preventDefault();
     setEmail('admin@zevra.com');
     setError('');
-    const pwInput = document.getElementById('admin-login-password');
-    if (pwInput) pwInput.focus();
+    const input = document.getElementById('admin-pw');
+    if (input) input.focus();
   }
 
   return (
-    <div className="admin-split-page">
-      {/* ── Left Side: Branded Editorial Showcase ── */}
-      <div className="admin-split-showcase">
-        <div className="admin-split-showcase__overlay" />
-
-        <div className="admin-split-showcase__content">
-          {/* Top badge */}
-          <div className="admin-split-showcase__header">
-            <div className="admin-showcase__brand-pill">
-              <span className="admin-showcase__brand-name">ZEVRA</span>
-              <span className="admin-showcase__brand-divider">/</span>
-              <span className="admin-showcase__brand-label">ATELIER CONSOLE</span>
-            </div>
-            <div className="admin-showcase__status-pill">
-              <span className="admin-showcase__status-dot" />
-              <span>System Online</span>
-            </div>
+    <div className="admin-split">
+      {/* ── Left Side: Visual & Editorial ── */}
+      <div className="admin-split__visual">
+        <div className="admin-split__visual-overlay" />
+        
+        <div className="admin-split__visual-content">
+          <div className="admin-split__visual-top">
+            <span className="admin-split__brand-tag">ZEVRA</span>
+            <span className="admin-split__badge">CONSOLE</span>
           </div>
 
-          {/* Editorial Quote / Hero */}
-          <div className="admin-split-showcase__editorial">
-            <span className="admin-showcase__eyebrow">
-              <Sparkles size={14} /> Luxury Menswear Operations
-            </span>
-            <h2 className="admin-showcase__heading">
-              Crafted with intention. <br />
-              <em>Governed with precision.</em>
-            </h2>
-            <p className="admin-showcase__description">
-              The centralized atelier hub for real-time inventory management, bespoke catalog curation,
-              order fulfillment, and customer intelligence.
+          <div className="admin-split__visual-bottom">
+            <p className="admin-split__quote">
+              &ldquo;Precision in every stitch. Control in every detail.&rdquo;
             </p>
-
-            {/* Feature Highlights */}
-            <div className="admin-showcase__features">
-              <div className="admin-showcase__feature-item">
-                <div className="admin-showcase__feature-icon">
-                  <Boxes size={18} />
-                </div>
-                <div>
-                  <h4>Catalog & Inventory Control</h4>
-                  <p>Manage raw denim, oxford weaves, sizes, and stock limits in real time.</p>
-                </div>
-              </div>
-
-              <div className="admin-showcase__feature-item">
-                <div className="admin-showcase__feature-icon">
-                  <ShoppingBag size={18} />
-                </div>
-                <div>
-                  <h4>Order Pipeline & Dispatch</h4>
-                  <p>Orchestrate purchases, customer tracking, and dispatch timelines effortlessly.</p>
-                </div>
-              </div>
-
-              <div className="admin-showcase__feature-item">
-                <div className="admin-showcase__feature-icon">
-                  <ShieldCheck size={18} />
-                </div>
-                <div>
-                  <h4>Encrypted Enterprise Portal</h4>
-                  <p>Role-governed data protection and verified administrative sessions.</p>
-                </div>
-              </div>
+            <div className="admin-split__meta">
+              <span>Atelier Management System</span>
+              <span className="admin-split__dot">&bull;</span>
+              <span>Encrypted Session</span>
             </div>
-          </div>
-
-          {/* Footer Info */}
-          <div className="admin-split-showcase__footer">
-            <span>Enterprise Edition 2.0</span>
-            <span className="admin-showcase__bullet">•</span>
-            <span>256-bit Encrypted Session</span>
-            <span className="admin-showcase__bullet">•</span>
-            <span>Restricted Access</span>
           </div>
         </div>
       </div>
 
-      {/* ── Right Side: Sign-In Form ── */}
-      <div className="admin-split-form-pane">
-        <div className="admin-split-form-pane__top">
-          <a href="/" className="admin-split-back-link" title="Return to store">
-            <ArrowLeft size={16} />
-            <span>Return to Storefront</span>
-          </a>
-        </div>
+      {/* ── Right Side: Compact Centered Form ── */}
+      <div className="admin-split__form-side">
+        <a href="/" className="admin-split__back-link">
+          <ArrowLeft size={14} />
+          <span>Storefront</span>
+        </a>
 
-        <div className="admin-split-form-wrapper">
-          <div className="admin-split-form-header">
-            <div className="admin-split-logo-wrap">
-              <img src="/images/brand/logo.png" alt="ZEVRA" className="admin-split-logo" />
+        <div className="admin-split__form-container">
+          <div className="admin-split__header">
+            <div className="admin-split__logo-wrap">
+              <img src="/images/brand/logo.png" alt="ZEVRA" className="admin-split__logo" />
             </div>
-            <span className="admin-split-subtag">ADMINISTRATION ACCESS</span>
-            <h1 className="admin-split-title">Welcome to Console</h1>
-            <p className="admin-split-subtitle">
-              Sign in with your verified administrative credentials to enter the workspace.
-            </p>
+            <h1 className="admin-split__title">Admin Console</h1>
+            <p className="admin-split__subtitle">Sign in to manage catalog, orders, and inventory.</p>
           </div>
 
           {error && (
-            <div className="admin-split-error" role="alert">
-              <div className="admin-split-error__icon">!</div>
-              <div className="admin-split-error__msg">{error}</div>
+            <div className="admin-split__error" role="alert">
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="admin-split-form" noValidate>
-            <div className="admin-split-field">
-              <label htmlFor="admin-login-email">Email Address</label>
-              <div className="admin-split-input-wrap">
-                <Mail size={17} className="admin-split-input-icon" />
+          <form onSubmit={handleSubmit} className="admin-split__form">
+            <div className="admin-split__group">
+              <label htmlFor="admin-email">Email</label>
+              <div className="admin-split__input-box">
+                <Mail size={15} className="admin-split__icon" />
                 <input
-                  id="admin-login-email"
+                  id="admin-email"
                   type="email"
                   placeholder="admin@zevra.com"
                   value={email}
@@ -179,23 +108,23 @@ export default function AdminLogin({ onLogin }) {
               </div>
             </div>
 
-            <div className="admin-split-field">
-              <div className="admin-split-field__header">
-                <label htmlFor="admin-login-password">Password</label>
+            <div className="admin-split__group">
+              <div className="admin-split__group-row">
+                <label htmlFor="admin-pw">Password</label>
                 <button
                   type="button"
                   onClick={handleUseDefaultCredentials}
-                  className="admin-split-field__hint-btn"
+                  className="admin-split__hint"
                 >
-                  Use default: admin@zevra.com
+                  Fill default
                 </button>
               </div>
-              <div className="admin-split-input-wrap">
-                <Lock size={17} className="admin-split-input-icon" />
+              <div className="admin-split__input-box">
+                <Lock size={15} className="admin-split__icon" />
                 <input
-                  id="admin-login-password"
+                  id="admin-pw"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your admin password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
@@ -206,49 +135,39 @@ export default function AdminLogin({ onLogin }) {
                 />
                 <button
                   type="button"
-                  className="admin-split-password-toggle"
-                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="admin-split__eye"
+                  onClick={() => setShowPassword((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label="Toggle password visibility"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
             </div>
 
-            <div className="admin-split-options">
-              <label className="admin-split-checkbox">
-                <input type="checkbox" defaultChecked />
-                <span>Keep session active for 7 days</span>
-              </label>
-            </div>
-
             <button
               type="submit"
-              className="admin-split-submit-btn"
+              className="admin-split__btn"
               disabled={loading}
             >
               {loading ? (
-                <>
-                  <span className="admin-split-spinner" />
-                  <span>Verifying Session…</span>
-                </>
+                <span>Signing in…</span>
               ) : (
                 <>
-                  <span>Sign In to Console</span>
-                  <ArrowRight size={17} />
+                  <span>Sign In</span>
+                  <ArrowRight size={15} />
                 </>
               )}
             </button>
           </form>
 
-          <div className="admin-split-security-badge">
-            <CheckCircle2 size={15} />
-            <span>Authorized personnel only. All access attempts are recorded.</span>
+          <div className="admin-split__secure-tag">
+            <ShieldCheck size={13} />
+            <span>Restricted terminal • 256-bit encryption</span>
           </div>
 
-          <div className="admin-split-form-footer">
-            <p>© 2026 ZEVRA. Luxury Menswear Management System.</p>
+          <div className="admin-split__copyright">
+            &copy; 2026 ZEVRA. All rights reserved.
           </div>
         </div>
       </div>
