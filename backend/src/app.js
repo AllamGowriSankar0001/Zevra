@@ -9,15 +9,41 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // ── CORS ────────────────────────────────────────────────────────
-const allowedOrigins = (process.env.FRONTEND_ORIGIN || 'http://localhost:5174').split(',').map(s => s.trim());
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+const configuredOrigins = (process.env.FRONTEND_ORIGIN || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:3000',
+];
+
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...configuredOrigins]));
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser requests (e.g., server-to-server, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  credentials: true,
+}));
 
 // ── Body parsing ────────────────────────────────────────────────
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
 // ── Session ─────────────────────────────────────────────────────
+const isProduction = process.env.NODE_ENV === 'production' || process.env.COOKIE_SECURE === 'true';
+
 app.use(session({
   name:   process.env.SESSION_NAME  || 'zevra.sid',
   secret: process.env.SESSION_SECRET || 'change_me_in_production',
@@ -31,10 +57,10 @@ app.use(session({
   }),
   cookie: {
     httpOnly: true,
-    secure:   false,
-    sameSite: 'lax',
+    secure:   isProduction,
+    sameSite: isProduction ? 'none' : (process.env.COOKIE_SAME_SITE || 'lax'),
     maxAge:   parseInt(process.env.SESSION_MAX_AGE_MS || '604800000'),
-    domain:   'localhost',
+    ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {}),
   },
 }));
 

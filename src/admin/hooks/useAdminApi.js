@@ -1,4 +1,7 @@
-const API = 'http://localhost:4001/api/v1';
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const API = rawApiUrl
+  ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl}/api/v1`)
+  : 'http://localhost:4001/api/v1';
 
 function getToken()       { return sessionStorage.getItem('zevra_admin_tk') || ''; }
 export function hasAdminToken() { return Boolean(getToken()); }

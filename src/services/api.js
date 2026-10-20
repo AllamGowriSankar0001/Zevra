@@ -4,7 +4,10 @@
  * All requests send session cookies automatically (credentials: 'include')
  */
 
-const BASE = '/api/v1';
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const BASE = rawApiUrl
+  ? (rawApiUrl.endsWith('/api/v1') ? rawApiUrl : `${rawApiUrl}/api/v1`)
+  : '/api/v1';
 
 class ApiError extends Error {
   constructor(message, status, errors) {
