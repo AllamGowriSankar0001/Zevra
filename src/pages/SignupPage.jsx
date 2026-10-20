@@ -20,60 +20,74 @@ export default function SignupPage({ onSuccess, onGoLogin }) {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-page__card">
-        <div className="auth-page__brand">
-          <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
-        </div>
-
-        <h1 className="auth-page__title">Create account</h1>
-        <p className="auth-page__sub">Join ZEVRA for a better shopping experience.</p>
-
-        <form className="auth-page__form" onSubmit={handleSubmit} noValidate>
-          <div className="auth-page__field">
-            <label htmlFor="sp-name">Full name</label>
-            <input id="sp-name" type="text" placeholder="Your name"
-              value={name} onChange={e => { setName(e.target.value); setError(''); }}
-              autoComplete="name" />
+    <div className="auth-page auth-page--customer">
+      <div className="auth-page__layout">
+        <aside className="auth-page__story" aria-label="ZEVRA collection">
+          <div className="auth-page__story-copy">
+            <p className="auth-page__eyebrow">The ZEVRA experience</p>
+            <p className="auth-page__story-title">Considered style.<br />Made for every day.</p>
+            <p className="auth-page__story-note">Discover timeless essentials, thoughtfully made.</p>
           </div>
+        </aside>
 
-          <div className="auth-page__field">
-            <label htmlFor="sp-email">Email</label>
-            <input id="sp-email" type="email" placeholder="you@example.com"
-              value={email} onChange={e => { setEmail(e.target.value); setError(''); }}
-              autoComplete="email" />
-          </div>
-
-          <div className="auth-page__field">
-            <label htmlFor="sp-pw">Password</label>
-            <div className="auth-page__pw-wrap">
-              <input id="sp-pw" type={show ? 'text' : 'password'} placeholder="Min. 8 characters"
-                value={password} onChange={e => { setPassword(e.target.value); setError(''); }}
-                autoComplete="new-password" />
-              <button type="button" className="auth-page__toggle" onClick={() => setShow(s => !s)}>
-                {show ? 'Hide' : 'Show'}
-              </button>
+        <section className="auth-page__panel" aria-labelledby="signup-title">
+          <div className="auth-page__card">
+            <div className="auth-page__brand">
+              <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
             </div>
+
+            <p className="auth-page__eyebrow auth-page__eyebrow--form">A better everyday starts here</p>
+            <h1 className="auth-page__title" id="signup-title">Create your account</h1>
+            <p className="auth-page__sub">Join ZEVRA for a more considered wardrobe.</p>
+
+            <form className="auth-page__form" onSubmit={handleSubmit} noValidate>
+              <div className="auth-page__field">
+                <label htmlFor="sp-name">Full name</label>
+                <input id="sp-name" type="text" placeholder="Your name"
+                  value={name} onChange={e => { setName(e.target.value); setError(''); }}
+                  autoComplete="name" />
+              </div>
+
+              <div className="auth-page__field">
+                <label htmlFor="sp-email">Email address</label>
+                <input id="sp-email" type="email" placeholder="you@example.com"
+                  value={email} onChange={e => { setEmail(e.target.value); setError(''); }}
+                  autoComplete="email" />
+              </div>
+
+              <div className="auth-page__field">
+                <label htmlFor="sp-pw">Password</label>
+                <div className="auth-page__pw-wrap">
+                  <input id="sp-pw" type={show ? 'text' : 'password'} placeholder="At least 8 characters"
+                    value={password} onChange={e => { setPassword(e.target.value); setError(''); }}
+                    autoComplete="new-password" />
+                  <button type="button" className="auth-page__toggle" onClick={() => setShow(s => !s)}
+                    aria-pressed={show} aria-label={show ? 'Hide passwords' : 'Show passwords'}>
+                    {show ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="auth-page__field">
+                <label htmlFor="sp-confirm">Confirm password</label>
+                <input id="sp-confirm" type={show ? 'text' : 'password'} placeholder="Re-enter your password"
+                  value={confirm} onChange={e => { setConfirm(e.target.value); setError(''); }}
+                  autoComplete="new-password" />
+              </div>
+
+              {error && <p className="auth-page__error" role="alert">{error}</p>}
+
+              <button type="submit" className="btn-primary auth-page__submit" disabled={loading}>
+                {loading ? 'Creating account…' : 'Create Account'}
+              </button>
+            </form>
+
+            <p className="auth-page__switch">
+              Already have an account?{' '}
+              <button type="button" className="auth-page__switch-btn" onClick={onGoLogin}>Sign in</button>
+            </p>
           </div>
-
-          <div className="auth-page__field">
-            <label htmlFor="sp-confirm">Confirm password</label>
-            <input id="sp-confirm" type={show ? 'text' : 'password'} placeholder="Repeat password"
-              value={confirm} onChange={e => { setConfirm(e.target.value); setError(''); }}
-              autoComplete="new-password" />
-          </div>
-
-          {error && <p className="auth-page__error" role="alert">{error}</p>}
-
-          <button type="submit" className="btn-primary auth-page__submit" disabled={loading}>
-            {loading ? 'Creating account…' : 'Create Account'}
-          </button>
-        </form>
-
-        <p className="auth-page__switch">
-          Already have an account?{' '}
-          <button className="auth-page__switch-btn" onClick={onGoLogin}>Log In</button>
-        </p>
+        </section>
       </div>
     </div>
   );

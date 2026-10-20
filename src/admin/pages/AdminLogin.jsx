@@ -42,7 +42,7 @@ export default function AdminLogin({ onLogin }) {
   }
 
   return (
-    <div className="admin-split">
+    <div className="admin-root admin-split">
       {/* ── Left Side: Visual & Editorial ── */}
       <div className="admin-split__visual">
         <div className="admin-split__visual-overlay" />
@@ -76,7 +76,7 @@ export default function AdminLogin({ onLogin }) {
         <div className="admin-split__form-container">
           <div className="admin-split__header">
             <div className="admin-split__logo-wrap">
-              <img src="/images/brand/logo.png" alt="ZEVRA" className="admin-split__logo" />
+              <span className="admin-split__wordmark">ZEVRA</span>
             </div>
             <h1 className="admin-split__title">Admin Console</h1>
             <p className="admin-split__subtitle">Sign in to manage catalog, orders, and inventory.</p>
@@ -90,7 +90,16 @@ export default function AdminLogin({ onLogin }) {
 
           <form onSubmit={handleSubmit} className="admin-split__form">
             <div className="admin-split__group">
-              <label htmlFor="admin-email">Email</label>
+              <div className="admin-split__group-row">
+                <label htmlFor="admin-email">Email address</label>
+                <button
+                  type="button"
+                  onClick={handleUseDefaultCredentials}
+                  className="admin-split__hint"
+                >
+                  Use admin email
+                </button>
+              </div>
               <div className="admin-split__input-box">
                 <Mail size={15} className="admin-split__icon" />
                 <input
@@ -109,16 +118,7 @@ export default function AdminLogin({ onLogin }) {
             </div>
 
             <div className="admin-split__group">
-              <div className="admin-split__group-row">
-                <label htmlFor="admin-pw">Password</label>
-                <button
-                  type="button"
-                  onClick={handleUseDefaultCredentials}
-                  className="admin-split__hint"
-                >
-                  Fill default
-                </button>
-              </div>
+              <label htmlFor="admin-pw">Password</label>
               <div className="admin-split__input-box">
                 <Lock size={15} className="admin-split__icon" />
                 <input
@@ -137,8 +137,8 @@ export default function AdminLogin({ onLogin }) {
                   type="button"
                   className="admin-split__eye"
                   onClick={() => setShowPassword((v) => !v)}
-                  tabIndex={-1}
-                  aria-label="Toggle password visibility"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>

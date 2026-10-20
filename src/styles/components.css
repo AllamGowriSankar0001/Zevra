@@ -2345,6 +2345,155 @@
   padding: 0;
 }
 
+/* Customer authentication layout */
+.auth-page--customer {
+  min-height: calc(100svh - var(--header-h));
+  padding: 0;
+  background: #f0eee9;
+}
+.auth-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(390px, 0.95fr);
+  width: 100%;
+  max-width: none;
+  min-height: min(700px, calc(100svh - var(--header-h) - 6rem));
+  margin: 0;
+  background: var(--color-white);
+}
+.auth-page__story {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 600px;
+  padding: clamp(2rem, 5vw, 4.5rem);
+  overflow: hidden;
+  background: #4c4234 url('/images/brand/hero-mobile.png') center 38% / cover no-repeat;
+}
+.auth-page__story::before {
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(transparent, rgb(18 16 13 / 72%));
+  content: '';
+}
+.auth-page__story-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  color: var(--color-white);
+}
+.auth-page__eyebrow {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+.auth-page__story-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+.auth-page__story-note {
+  margin-top: 1rem;
+  color: rgb(255 255 255 / 84%);
+  font-size: var(--text-body-sm);
+}
+.auth-page__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vw, 4rem);
+}
+.auth-page--customer .auth-page__card {
+  max-width: 400px;
+}
+.auth-page--customer .auth-page__brand {
+  margin-bottom: 2.25rem;
+}
+.auth-page--customer .auth-page__logo {
+  height: 46px;
+}
+.auth-page__eyebrow--form {
+  margin-bottom: 0.65rem;
+  color: var(--color-secondary);
+}
+.auth-page--customer .auth-page__title {
+  font-size: clamp(2.5rem, 3.5vw, 3rem);
+}
+.auth-page--customer .auth-page__sub {
+  margin-bottom: 2rem;
+  font-size: var(--text-body);
+}
+.auth-page--customer .auth-page__form {
+  gap: 1.25rem;
+}
+.auth-page--customer .auth-page__field {
+  gap: 0.5rem;
+}
+.auth-page--customer .auth-page__field label {
+  color: var(--color-text-soft);
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.auth-page--customer .auth-page__field input {
+  min-height: 3.25rem;
+  border-color: #d9d6cf;
+  border-radius: 0;
+  background: #fff;
+}
+.auth-page--customer .auth-page__field input:focus {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 3px rgb(17 17 17 / 7%);
+}
+.auth-page--customer .auth-page__submit {
+  min-height: 3.5rem;
+  margin-top: 0.25rem;
+}
+.auth-page--customer .auth-page__switch {
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .auth-page__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 0.9fr);
+  }
+  .auth-page__story {
+    min-height: 540px;
+    padding: 2.25rem;
+  }
+  .auth-page__panel {
+    padding: 2.5rem;
+  }
+}
+@media (max-width: 720px) {
+  .auth-page--customer {
+    min-height: auto;
+    padding: 0;
+  }
+  .auth-page__layout {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+  .auth-page__story {
+    min-height: 280px;
+    padding: 2rem;
+    background-image: url('/images/brand/hero-bg.png');
+    background-position: center 45%;
+  }
+  .auth-page__story-title {
+    font-size: 2.5rem;
+  }
+  .auth-page__panel {
+    padding: 2.5rem clamp(1.5rem, 8vw, 3rem);
+  }
+  .auth-page--customer .auth-page__brand {
+    margin-bottom: 1.75rem;
+  }
+}
+
 /* Header user name */
 .header__user-name {
   font-family: var(--font-ui);
