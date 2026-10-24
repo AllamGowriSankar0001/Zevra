@@ -2713,8 +2713,8 @@
 }
 
 .cat-page__hero-main {
-  flex: 1 1 auto;
-  max-width: 680px;
+  flex: 1 1 100%;
+  max-width: 900px;
 }
 
 /* Breadcrumbs */
@@ -2841,31 +2841,6 @@
   font-weight: 600;
 }
 
-/* Framed Editorial Visual Card */
-.cat-page__hero-media {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: center;
-}
-
-.cat-page__hero-frame {
-  width: 250px;
-  height: 190px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  background: #25221F;
-}
-
-.cat-page__hero-card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 35%;
-  display: block;
-}
-
 /* Toolbar */
 .cat-page__body {
   padding-top: 2.5rem;
@@ -2879,13 +2854,71 @@
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--color-divider);
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1.25rem;
+}
+.cat-page__toolbar-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  flex: 1 1 320px;
+}
+
+/* Category Search */
+.cat-page__search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 220px;
+  max-width: 320px;
+  width: 100%;
+}
+.cat-page__search-icon {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--color-secondary);
+  pointer-events: none;
+}
+.cat-page__search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 1.85rem 0 2.2rem;
+  font-family: var(--font-ui);
+  font-size: var(--text-caption);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-xs);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.cat-page__search-input:focus {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.08);
+}
+.cat-page__search-clear {
+  position: absolute;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--color-secondary);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 50%;
+  transition: color var(--transition);
+}
+.cat-page__search-clear:hover {
+  color: var(--color-text);
 }
 .cat-page__count {
   font-family: var(--font-ui);
   font-size: var(--text-body-sm);
-  font-weight: 300;
+  font-weight: 400;
   color: var(--color-secondary);
+  margin: 0;
 }
 .cat-page__sort-wrap {
   display: flex;

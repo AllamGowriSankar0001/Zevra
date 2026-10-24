@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Search, X, RotateCcw } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import ScrollReveal from '../components/ScrollReveal';
 
@@ -10,12 +11,12 @@ const SORT_OPTIONS = [
 ];
 
 export default function CategoryPage({ categoryId, categories, products, loading, error, onQuickView, onCategoryChange }) {
-  const [sort, setSort] = useState('default');
-  const [size, setSize] = useState('');
-  const [color, setColor] = useState('');
+  const [search, setSearch]     = useState('');
+  const [sort, setSort]         = useState('default');
+  const [size, setSize]         = useState('');
+  const [color, setColor]       = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [failedHeroImages, setFailedHeroImages] = useState({});
 
   const meta = categories.find(category => category.id === categoryId) || {};
   const parentCategory = meta.parent ? categories.find(c => c.slug === meta.parent) : null;
@@ -26,10 +27,11 @@ export default function CategoryPage({ categoryId, categories, products, loading
     return [categoryId, ...subcategories.map(s => s.id)];
   }, [categoryId, subcategories]);
 
-  const hasFilters = Boolean(size || color || minPrice || maxPrice || sort !== 'default');
+  const hasFilters = Boolean(search.trim() || size || color || minPrice || maxPrice || sort !== 'default');
   const invalidPriceRange = Boolean(minPrice && maxPrice && Number(minPrice) > Number(maxPrice));
 
   function clearFilters() {
+    setSearch('');
     setSize('');
     setColor('');
     setMinPrice('');
@@ -42,16 +44,41 @@ export default function CategoryPage({ categoryId, categories, products, loading
   }, [products, matchingCategorySlugs]);
 
   const categoryProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
     const filtered = categoryProductsAll.filter(product => {
+      // 1. Search text filter
+      if (term) {
+        const nameMatch = (product.name || '').toLowerCase().includes(term);
+        const descMatch = (product.description || '').toLowerCase().includes(term);
+        const catMatch  = (product.category || '').toLowerCase().includes(term);
+        const colorMatch = [
+          ...(product.colours || []).map(c => c.name || ''),
+          ...(product.variants || []).map(v => v.color || ''),
+        ].some(c => c.toLowerCase().includes(term));
+        const sizeMatch = [
+          ...(product.sizes || []),
+          ...(product.variants || []).map(v => v.size || ''),
+        ].some(s => s.toLowerCase().includes(term));
+
+        if (!nameMatch && !descMatch && !catMatch && !colorMatch && !sizeMatch) return false;
+      }
+
+      // 2. Size filter
       const productSizes = [...(product.sizes || []), ...(product.variants || []).map(variant => variant.size).filter(Boolean)];
+      if (size && !productSizes.includes(size)) return false;
+
+      // 3. Color filter
       const productColors = [
         ...(product.colours || []).map(option => option.name).filter(Boolean),
         ...(product.variants || []).map(variant => variant.color).filter(Boolean),
       ];
-      if (size && !productSizes.includes(size)) return false;
       if (color && !productColors.includes(color)) return false;
+
+      // 4. Price range filter
       if (minPrice && product.price < Number(minPrice)) return false;
       if (maxPrice && product.price > Number(maxPrice)) return false;
+
       return true;
     });
 
@@ -61,13 +88,9 @@ export default function CategoryPage({ categoryId, categories, products, loading
       case 'name-asc':   return [...filtered].sort((a, b) => a.name.localeCompare(b.name));
       default:           return filtered;
     }
-  }, [categoryProductsAll, color, maxPrice, minPrice, size, sort]);
+  }, [categoryProductsAll, search, color, maxPrice, minPrice, size, sort]);
 
   const otherCategories = categories.filter(category => category.id !== categoryId && (!category.parent || category.parent !== meta.parent));
-
-  // Determine hero visual image
-  const heroImage = [meta.imageUrl, categoryProductsAll[0]?.images?.[0]]
-    .find(image => image && failedHeroImages[image] !== true);
 
   const sizes = [...new Set(categoryProductsAll.flatMap(product => [
     ...(product.sizes || []),
@@ -81,7 +104,7 @@ export default function CategoryPage({ categoryId, categories, products, loading
 
   return (
     <div className="cat-page">
-      {/* ── Modern Luxury Editorial Hero ── */}
+      {/* ── Modern Luxury Editorial Hero (Clean Typography, No Distorting Image) ── */}
       <ScrollReveal>
         <div className="cat-page__hero">
           <div className="cat-page__hero-overlay" />
@@ -151,31 +174,47 @@ export default function CategoryPage({ categoryId, categories, products, loading
                 </div>
               )}
             </div>
-
-            {/* Framed Editorial Visual Card (Tastefully sized, NEVER stretched across full width) */}
-            {heroImage && (
-              <div className="cat-page__hero-media">
-                <div className="cat-page__hero-frame">
-                  <img
-                    className="cat-page__hero-card-img"
-                    src={heroImage}
-                    alt={meta.name || meta.label}
-                    onError={() => setFailedHeroImages(current => ({ ...current, [heroImage]: true }))}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </ScrollReveal>
 
-      {/* ── Products & Toolbar ── */}
+      {/* ── Products & Search Toolbar ── */}
       <ScrollReveal>
         <div className="cat-page__body container">
           <div className="cat-page__toolbar">
-            <p className="cat-page__count">
-              {loading ? 'Loading products…' : `${categoryProducts.length} of ${categoryProductsAll.length} curated pieces`}
-            </p>
+            <div className="cat-page__toolbar-left">
+              {/* Product Search Input */}
+              <div className="cat-page__search-wrap">
+                <Search size={15} className="cat-page__search-icon" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder={`Search in ${meta.name || meta.label || 'collection'}…`}
+                  className="cat-page__search-input"
+                  aria-label={`Search in ${meta.name || meta.label || 'collection'}`}
+                />
+                {search && (
+                  <button
+                    type="button"
+                    className="cat-page__search-clear"
+                    onClick={() => setSearch('')}
+                    title="Clear search"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              <p className="cat-page__count">
+                {loading
+                  ? 'Loading products…'
+                  : search.trim()
+                    ? `${categoryProducts.length} ${categoryProducts.length === 1 ? 'result' : 'results'} for "${search.trim()}"`
+                    : `${categoryProducts.length} of ${categoryProductsAll.length} curated pieces`}
+              </p>
+            </div>
+
             <div className="cat-page__filters" aria-label="Filter products">
               <label className="cat-page__filter">
                 <span>Category</span>
@@ -190,6 +229,7 @@ export default function CategoryPage({ categoryId, categories, products, loading
                   })}
                 </select>
               </label>
+
               {sizes.length > 0 && (
                 <label className="cat-page__filter">
                   <span>Size</span>
@@ -199,6 +239,7 @@ export default function CategoryPage({ categoryId, categories, products, loading
                   </select>
                 </label>
               )}
+
               {colors.length > 0 && (
                 <label className="cat-page__filter">
                   <span>Colour</span>
@@ -208,21 +249,30 @@ export default function CategoryPage({ categoryId, categories, products, loading
                   </select>
                 </label>
               )}
+
               <label className="cat-page__filter cat-page__filter--price">
                 <span>Min price</span>
                 <input type="number" min="0" inputMode="numeric" value={minPrice} placeholder="₹ Min" onChange={e => setMinPrice(e.target.value)} />
               </label>
+
               <label className="cat-page__filter cat-page__filter--price">
                 <span>Max price</span>
                 <input type="number" min="0" inputMode="numeric" value={maxPrice} placeholder="₹ Max" onChange={e => setMaxPrice(e.target.value)} />
               </label>
+
               <label className="cat-page__filter cat-page__filter--sort">
                 <span>Sort by</span>
                 <select value={sort} onChange={e => setSort(e.target.value)}>
                   {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
-              {hasFilters && <button className="cat-page__reset" type="button" onClick={clearFilters}>Clear filters</button>}
+
+              {hasFilters && (
+                <button className="cat-page__reset" type="button" onClick={clearFilters}>
+                  <RotateCcw size={12} style={{ marginRight: '4px' }} />
+                  Clear filters
+                </button>
+              )}
             </div>
           </div>
 
@@ -238,8 +288,24 @@ export default function CategoryPage({ categoryId, categories, products, loading
           ) : categoryProducts.length === 0 ? (
             <div className="cat-page__empty">
               <span className="cat-page__empty-mark" aria-hidden="true">Z</span>
-              <p className="cat-page__empty-title">This collection is coming soon.</p>
-              <p>We’re preparing something special. Please check back soon.</p>
+              <p className="cat-page__empty-title">
+                {search.trim() ? `No products match "${search.trim()}"` : 'This collection is coming soon.'}
+              </p>
+              <p>
+                {search.trim()
+                  ? 'Try checking for spelling errors or removing filters to see more results.'
+                  : 'We’re preparing something special. Please check back soon.'}
+              </p>
+              {hasFilters && (
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: '1.25rem', minHeight: '38px' }}
+                  onClick={clearFilters}
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           ) : (
             <div className="cat-page__grid">
