@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Heart, MapPin, Check, Plus, Minus, X, ArrowLeft, Ruler } from 'lucide-react';
+import { Heart, MapPin, Check, Plus, Minus, X, ArrowLeft, Ruler, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPrice } from '../data/products';
 import { useAuth } from '../hooks/useAuth';
 import ProductIllustration from '../components/ProductIllustration';
@@ -164,7 +164,7 @@ export default function ProductDetailsPage({
       <div className="container">
         {/* ── TOP SECTION: Main Image & Purchase Details Side by Side ── */}
         <div className="pdp-hero-split">
-          {/* Left: Main Product Image & Thumbnail Strip */}
+          {/* Left: Main Product Image Card (Height matches side panel down to Add to Bag) */}
           <div className="pdp-hero-media">
             <div className="pdp-main-image-card">
               {activeMainImage ? (
@@ -184,24 +184,39 @@ export default function ProductDetailsPage({
                   className="product-card__img product-card__illustration"
                 />
               )}
-            </div>
 
-            {/* Thumbnail Strip (if multiple images) */}
-            {images.length > 1 && (
-              <div className="pdp-thumbnails-strip" aria-label="Product image angles">
-                {images.map((src, idx) => (
+              {images.length > 1 && (
+                <>
                   <button
-                    key={idx}
                     type="button"
-                    className={`pdp-thumbnail-btn${activeImageIndex === idx ? ' active' : ''}`}
-                    onClick={() => setActiveImageIndex(idx)}
-                    title={`View angle ${idx + 1}`}
+                    className="pdp-img-nav-btn pdp-img-nav-btn--prev"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+                    }}
+                    aria-label="Previous view"
+                    title="Previous view"
                   >
-                    <img src={src} alt="" loading="lazy" />
+                    <ChevronLeft size={20} />
                   </button>
-                ))}
-              </div>
-            )}
+                  <button
+                    type="button"
+                    className="pdp-img-nav-btn pdp-img-nav-btn--next"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveImageIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+                    }}
+                    aria-label="Next view"
+                    title="Next view"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                  <div className="pdp-img-counter">
+                    {activeImageIndex + 1} / {images.length}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Right: Product Details, Size, Pincode & Add to Bag */}
