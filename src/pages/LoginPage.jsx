@@ -18,30 +18,6 @@ export default function LoginPage({ onSuccess, onGoSignup, onBack }) {
 
   return (
     <div className="auth-page auth-page--customer">
-      {/* Top Header Bar across the top of screen */}
-      <header className="auth-page__top-bar">
-        {onBack ? (
-          <button
-            type="button"
-            className="auth-page__back-link"
-            onClick={onBack}
-            aria-label="Back to store"
-          >
-            <ArrowLeft size={16} />
-            <span>Back to Store</span>
-          </button>
-        ) : <div />}
-
-        <button
-          type="button"
-          className="auth-page__brand"
-          onClick={onBack}
-          title="Return to store"
-        >
-          <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
-        </button>
-      </header>
-
       <div className="auth-page__layout">
         <aside className="auth-page__story" aria-label="ZEVRA collection">
           <div className="auth-page__story-copy">
@@ -53,6 +29,29 @@ export default function LoginPage({ onSuccess, onGoSignup, onBack }) {
 
         <section className="auth-page__panel" aria-labelledby="login-title">
           <div className="auth-page__card">
+            <div className="auth-page__card-top">
+              {onBack && (
+                <button
+                  type="button"
+                  className="auth-page__back-link"
+                  onClick={onBack}
+                  aria-label="Back to store"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Store</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="auth-page__brand"
+                onClick={onBack}
+                title="Return to store"
+              >
+                <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
+              </button>
+            </div>
+
             <p className="auth-page__eyebrow auth-page__eyebrow--form">Your wardrobe, waiting</p>
             <h1 className="auth-page__title" id="login-title">Welcome back</h1>
             <p className="auth-page__sub">Sign in to pick up where you left off.</p>

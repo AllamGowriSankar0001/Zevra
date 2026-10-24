@@ -2623,42 +2623,39 @@
   position: relative;
   min-height: 100svh;
   padding: 0;
-  background: var(--color-white);
+  background: #f0eee9;
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
   width: 100%;
   overflow-x: hidden;
 }
-
-/* Dedicated Top Bar at the very top of the screen */
-.auth-page__top-bar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
+.auth-page--customer .auth-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
   width: 100%;
-  height: 64px;
+  max-width: none;
+  min-height: 100svh;
+  margin: 0;
+  background: var(--color-white);
+}
+
+.auth-page__card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(1.25rem, 4vw, 3rem);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--color-divider);
-  z-index: 50;
-  flex-shrink: 0;
+  margin-bottom: 2rem;
+  width: 100%;
 }
 
 .auth-page__back-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   background: none;
   border: none;
-  padding: 0.5rem 0;
+  padding: 0.35rem 0.5rem 0.35rem 0;
   font-family: var(--font-ui);
-  font-size: 0.84rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-secondary);
   cursor: pointer;
@@ -2669,36 +2666,18 @@
   text-decoration: underline;
 }
 
-.auth-page__brand {
+.auth-page--customer .auth-page__brand {
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
+  display: block;
 }
-.auth-page__logo {
-  height: 38px;
-  width: auto;
-  object-fit: contain;
-}
-
-.auth-page--customer .auth-page__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
-  width: 100%;
-  max-width: none;
-  flex: 1;
-  min-height: calc(100svh - 64px);
-  margin: 0;
-  background: var(--color-white);
-}
-
 .auth-page__story {
   position: relative;
   display: flex;
   align-items: flex-end;
-  min-height: 520px;
+  min-height: 600px;
   padding: clamp(2rem, 5vw, 4.5rem);
   overflow: hidden;
   background: #4c4234 url('/images/brand/hero-mobile.png') center 38% / cover no-repeat;
@@ -2740,11 +2719,17 @@
   align-items: center;
   justify-content: center;
   padding: clamp(2rem, 4vw, 4rem);
-  flex: 1;
 }
 .auth-page--customer .auth-page__card {
   width: 100%;
   max-width: 400px;
+}
+.auth-page--customer .auth-page__brand {
+  margin-bottom: 0;
+}
+.auth-page--customer .auth-page__logo {
+  height: 42px;
+  width: auto;
 }
 .auth-page__eyebrow--form {
   margin-bottom: 0.65rem;
@@ -2787,24 +2772,21 @@
 }
 
 @media (max-width: 860px) {
-  .auth-page__top-bar {
-    height: 58px;
-    padding: 0 1.25rem;
-  }
-  .auth-page__logo {
-    height: 32px;
+  .auth-page--customer {
+    min-height: 100svh;
+    background: var(--color-white);
   }
   .auth-page--customer .auth-page__layout {
     grid-template-columns: 1fr !important;
-    min-height: calc(100svh - 58px);
+    min-height: 100svh;
   }
   .auth-page--customer .auth-page__story {
-    display: none !important;
+    display: none !important; /* Hide image banner on mobile to keep focus cleanly on the form */
   }
   .auth-page--customer .auth-page__panel {
-    padding: 2rem 1.25rem;
+    padding: 2.25rem 1.25rem;
     width: 100%;
-    min-height: calc(100svh - 58px);
+    min-height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2818,9 +2800,6 @@
   }
 }
 @media (max-width: 420px) {
-  .auth-page__top-bar {
-    padding: 0 1rem;
-  }
   .auth-page--customer .auth-page__panel {
     padding: 1.5rem 1rem;
   }
