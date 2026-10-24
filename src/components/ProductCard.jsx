@@ -4,7 +4,7 @@ import { formatPrice } from '../data/products';
 import { useAuth } from '../hooks/useAuth';
 import ProductIllustration from './ProductIllustration';
 
-export default function ProductCard({ product, onQuickView }) {
+export default function ProductCard({ product, onQuickView, onProductClick }) {
   const { user, isInWishlist, toggleWishlist, triggerRequireLogin } = useAuth();
   const [imgError, setImgError] = useState({ primary: false, secondary: false });
   const [selectedColor, setSelectedColor] = useState(product.colours?.[0]?.name || '');
@@ -51,12 +51,20 @@ export default function ProductCard({ product, onQuickView }) {
     onQuickView?.(product, null, { initialSize: size });
   }
 
+  function handleCardClick() {
+    if (onProductClick) {
+      onProductClick(product);
+    } else {
+      onQuickView?.(product, null);
+    }
+  }
+
   return (
     <article
       className="product-card"
       aria-label={product.name}
-      onClick={() => onQuickView?.(product, null)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onQuickView?.(product, null); }}}
+      onClick={handleCardClick}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleCardClick(); }}}
       role="button"
       tabIndex={0}
     >

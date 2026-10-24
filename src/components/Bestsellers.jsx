@@ -1,6 +1,6 @@
 import ProductCard from './ProductCard';
 
-export default function Bestsellers({ products, loading, error, onQuickView, onShopAll }) {
+export default function Bestsellers({ products, loading, error, onQuickView, onShopAll, onProductClick }) {
   const bestsellers = products.slice(0, 4);
   return (
     <section className="bs" aria-labelledby="bs-title">
@@ -19,7 +19,7 @@ export default function Bestsellers({ products, loading, error, onQuickView, onS
           : error ? <p className="storefront-products__message" role="alert">{error}</p>
           : bestsellers.length === 0 ? <p className="storefront-products__message">Our first collection is on its way. Please check back soon.</p>
           : bestsellers.map(product => (
-          <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+          <ProductCard key={product.id} product={product} onQuickView={onQuickView} onProductClick={onProductClick} />
         ))}
       </div>
     </section>

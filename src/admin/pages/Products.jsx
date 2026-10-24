@@ -105,9 +105,9 @@ export default function Products() {
     if (!form.category) { setFormError('Choose a category.'); return; }
     if (form.price === '' || !Number.isFinite(Number(form.price)) || Number(form.price) < 0) { setFormError('Enter a valid non-negative price.'); return; }
     if (form.stock === '' || !Number.isInteger(Number(form.stock)) || Number(form.stock) < 0) { setFormError('Enter a whole number of zero or more for initial stock.'); return; }
-    const imageUrl = form.images[0]?.url?.trim() || '';
-    if (imageUrl && !isValidImageUrl(imageUrl)) {
-      setFormError('Enter a full http(s) image URL or a site path starting with / (for example, /images/product.jpg).');
+    const invalidImage = form.images.find(img => img.url?.trim() && !isValidImageUrl(img.url.trim()));
+    if (invalidImage) {
+      setFormError('All image URLs must be full http(s) URLs or site paths starting with / (for example, /images/product.jpg).');
       return;
     }
     setSaving(true);
@@ -118,7 +118,9 @@ export default function Products() {
         slug: form.slug.trim().toLowerCase(),
         price: Number(form.price),
         stock: Number(form.stock),
-        images: form.images.filter(image => image.url?.trim()).map(image => ({ ...image, url: image.url.trim() })),
+        images: form.images
+          .filter(image => image.url?.trim())
+          .map((image, idx) => ({ ...image, url: image.url.trim(), isPrimary: idx === 0 })),
         colors: form.colors.filter(color => color.name?.trim() && color.hex?.trim())
           .map(color => ({ ...color, name: color.name.trim(), hex: color.hex.trim() })),
       };
@@ -248,28 +250,95 @@ export default function Products() {
             </section>
             <section className="product-form__section" aria-labelledby="product-media-heading">
               <div className="product-form__section-heading">
-                <h2 id="product-media-heading">Product image</h2>
-                <p>Use a site-relative path or a full image URL.</p>
+                <h2 id="product-media-heading">Product Images</h2>
+                <p>Add multiple product images (front, back, model view, details). First image is Primary.</p>
               </div>
-            <div className="admin-field">
-              <label>Image URL</label>
-              <input value={form.images[0]?.url || ''} onChange={e => {
-                setImagePreviewError(false);
-                setForm(f => {
-                const imgs = [...f.images];
-                imgs[0] = { ...imgs[0], url: e.target.value };
-                return { ...f, images: imgs };
-                });
-              }} placeholder="https://example.com/product.jpg or /images/product.jpg" />
-              <span className="admin-field__hint">Use a direct image URL (http/https) or a site path beginning with /. A page link or search result is not an image.</span>
-              {form.images[0]?.url && !imagePreviewError && (
-                <div className="product-image-preview">
-                  <img src={form.images[0].url} alt="Product preview" onError={() => setImagePreviewError(true)} />
-                  <span>Image preview</span>
-                </div>
-              )}
-              {form.images[0]?.url && imagePreviewError && <p className="admin-error" role="alert">This image URL could not be loaded. Use a direct image URL and check that the host allows it to be displayed here.</p>}
-            </div>
+              <div className="product-images-manager">
+                {form.images.map((img, index) => (
+                  <div key={index} className={`product-image-row${index === 0 ? ' product-image-row--primary' : ''}`}>
+                    {img.url ? (
+                      <img
+                        src={img.url}
+                        alt={`Preview ${index + 1}`}
+                        className="product-image-row__thumb"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    ) : (
+                      <div className="product-image-row__thumb-placeholder">
+                        #{index + 1}
+                      </div>
+                    )}
+                    <div className="product-image-row__main">
+                      <div className="product-image-row__input-wrap">
+                        <input
+                          value={img.url || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setForm((f) => {
+                              const imgs = [...f.images];
+                              imgs[index] = { ...imgs[index], url: val };
+                              return { ...f, images: imgs };
+                            });
+                          }}
+                          placeholder={`Image #${index + 1} URL (e.g. https://... or /images/...)`}
+                        />
+                        {index === 0 && <span className="product-image-row__badge">Primary</span>}
+                      </div>
+                    </div>
+                    <div className="product-image-row__actions">
+                      {index > 0 && (
+                        <button
+                          type="button"
+                          className="a-btn a-btn--secondary a-btn--sm"
+                          onClick={() => {
+                            setForm((f) => {
+                              const item = f.images[index];
+                              const rest = f.images.filter((_, i) => i !== index);
+                              return {
+                                ...f,
+                                images: [{ ...item, isPrimary: true }, ...rest.map((r) => ({ ...r, isPrimary: false }))],
+                              };
+                            });
+                          }}
+                          title="Set this image as primary display"
+                        >
+                          Make Primary
+                        </button>
+                      )}
+                      {form.images.length > 1 && (
+                        <button
+                          type="button"
+                          className="a-btn a-btn--danger a-btn--sm"
+                          onClick={() => {
+                            setForm((f) => ({
+                              ...f,
+                              images: f.images.filter((_, i) => i !== index),
+                            }));
+                          }}
+                          title="Remove this image"
+                        >
+                          <Trash2 size={13} aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="a-btn a-btn--secondary a-btn--sm"
+                  style={{ alignSelf: 'flex-start', marginTop: '6px' }}
+                  onClick={() => {
+                    setForm((f) => ({
+                      ...f,
+                      images: [...f.images, { url: '', alt: '', isPrimary: false }],
+                    }));
+                  }}
+                >
+                  <Plus size={14} style={{ marginRight: '4px' }} />
+                  Add Another Image
+                </button>
+              </div>
             </section>
             <div className="product-form__options">
             <section className="product-form__section product-form__option-card" aria-labelledby="product-colours-heading">

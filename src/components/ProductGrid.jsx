@@ -1,6 +1,6 @@
 import ProductCard from './ProductCard';
 
-export default function ProductGrid({ categories, products, loading, error, activeCategory, onCategoryChange, onQuickView }) {
+export default function ProductGrid({ categories, products, loading, error, activeCategory, onCategoryChange, onQuickView, onProductClick }) {
   const filtered =
     activeCategory === 'all'
       ? products
@@ -56,6 +56,7 @@ export default function ProductGrid({ categories, products, loading, error, acti
               <ProductCard
                 product={product}
                 onQuickView={onQuickView}
+                onProductClick={onProductClick}
               />
             </div>
           ))

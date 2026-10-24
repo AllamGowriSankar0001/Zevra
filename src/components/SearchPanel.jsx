@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Search } from 'lucide-react';
 import ProductCard from './ProductCard';
 
-export default function SearchPanel({ products, loading, error, onClose, onQuickView }) {
+export default function SearchPanel({ products, loading, error, onClose, onQuickView, onProductClick }) {
   const [query, setQuery] = useState('');
   const inputRef = useRef(null);
 
@@ -89,6 +89,10 @@ export default function SearchPanel({ products, loading, error, onClose, onQuick
                     onQuickView={(product, trigger) => {
                       onClose();
                       onQuickView(product, trigger);
+                    }}
+                    onProductClick={(product) => {
+                      onClose();
+                      onProductClick?.(product);
                     }}
                   />
                 </div>

@@ -9,7 +9,7 @@ const SORT_OPTIONS = [
   { value: 'name-asc',   label: 'Name: A–Z' },
 ];
 
-export default function CategoryPage({ categoryId, categories, products, loading, error, onQuickView, onCategoryChange }) {
+export default function CategoryPage({ categoryId, categories, products, loading, error, onQuickView, onCategoryChange, onProductClick }) {
   const [search, setSearch]     = useState('');
   const [sort, setSort]         = useState('default');
   const [size, setSize]         = useState('');
@@ -307,7 +307,12 @@ export default function CategoryPage({ categoryId, categories, products, loading
         ) : (
           <div className="cat-page__grid">
             {categoryProducts.map(product => (
-              <ProductCard key={product.id || product._id} product={product} onQuickView={onQuickView} />
+              <ProductCard
+                key={product.id || product._id}
+                product={product}
+                onQuickView={onQuickView}
+                onProductClick={onProductClick}
+              />
             ))}
           </div>
         )}

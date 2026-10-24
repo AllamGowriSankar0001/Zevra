@@ -1,6 +1,6 @@
 import ProductCard from './ProductCard';
 
-export default function NewArrivals({ products, loading, error, onQuickView, onViewAll }) {
+export default function NewArrivals({ products, loading, error, onQuickView, onViewAll, onProductClick }) {
   const newArrivals = products.slice(0, 4);
   return (
     <section className="na" aria-labelledby="na-title">
@@ -21,7 +21,7 @@ export default function NewArrivals({ products, loading, error, onQuickView, onV
           : newArrivals.map(product => (
           <div key={product.id} className="na__card-wrap">
             <span className="na__badge">New</span>
-            <ProductCard product={product} onQuickView={onQuickView} />
+            <ProductCard product={product} onQuickView={onQuickView} onProductClick={onProductClick} />
           </div>
         ))}
       </div>

@@ -23,8 +23,9 @@ import ShippingReturns  from './pages/ShippingReturns';
 import PrivacyPolicy    from './pages/PrivacyPolicy';
 import TermsConditions  from './pages/TermsConditions';
 import LoginPage        from './pages/LoginPage';
-import SignupPage        from './pages/SignupPage';
+import SignupPage       from './pages/SignupPage';
 import CategoryPage     from './pages/CategoryPage';
+import ProductDetailsPage from './pages/ProductDetailsPage';
 import MyProfile        from './pages/MyProfile';
 import MyOrders         from './pages/MyOrders';
 import MyWishlist       from './pages/MyWishlist';
@@ -142,6 +143,10 @@ export default function App() {
   }, []);
   const handleCloseQuickView = useCallback(() => setQuickViewProduct(null), []);
   const handleAddToCart = useCallback((p, c, s, q) => addItem(p, c, s, q), [addItem]);
+  const handleOpenProduct = useCallback((product) => {
+    const slugOrId = product.slug || product.id || product._id;
+    openPage(`product:${slugOrId}`);
+  }, []);
 
   function openPage(page) {
     setCurrentPage(page);
@@ -174,6 +179,7 @@ export default function App() {
   }
 
   const isAuthPage     = currentPage === 'login' || currentPage === 'signup';
+  const isProductPage  = typeof currentPage === 'string' && currentPage.startsWith('product:');
   const isCategoryPage = categories.some(category => category.id === currentPage);
   const InfoComponent  = currentPage && INFO_PAGES[currentPage];
 
@@ -182,18 +188,33 @@ export default function App() {
     if (currentPage === 'signup')   return <SignupPage  onSuccess={handleAuthSuccess} onGoLogin={() => openPage('login')} onBack={handleGoBack} />;
     if (currentPage === 'profile')  return user ? <MyProfile   user={user} onUpdate={u => setUser?.(u)} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
     if (currentPage === 'orders')   return user ? <MyOrders /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
-    if (currentPage === 'wishlist') return user ? <MyWishlist  onQuickView={handleOpenQuickView} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
-    if (isCategoryPage)             return <CategoryPage categoryId={currentPage} categories={categories} products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onCategoryChange={handleCategoryChange} />;
+    if (currentPage === 'wishlist') return user ? <MyWishlist  onQuickView={handleOpenQuickView} onProductClick={handleOpenProduct} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
+    if (isProductPage) {
+      const slugOrId = currentPage.replace('product:', '');
+      const selectedProduct = catalog.find(p =>
+        p.slug === slugOrId || String(p.id) === slugOrId || String(p._id) === slugOrId
+      );
+      return (
+        <ProductDetailsPage
+          product={selectedProduct}
+          categories={categories}
+          onCategoryChange={handleCategoryChange}
+          onAddToCart={handleAddToCart}
+          onBack={returnPage ? () => { openPage(returnPage); setReturnPage(null); } : goHome}
+        />
+      );
+    }
+    if (isCategoryPage)             return <CategoryPage categoryId={currentPage} categories={categories} products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onCategoryChange={handleCategoryChange} onProductClick={handleOpenProduct} />;
     if (InfoComponent)              return <ScrollReveal><InfoComponent /></ScrollReveal>;
     return (
       <>
         <ScrollReveal><Hero /></ScrollReveal>
         <ScrollReveal><MarqueeBanner /></ScrollReveal>
         <ScrollReveal><ShopByCategory categories={categories} products={catalog} onCategoryChange={handleCategoryChange} /></ScrollReveal>
-        <ScrollReveal><NewArrivals products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onViewAll={goHome} /></ScrollReveal>
+        <ScrollReveal><NewArrivals products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onViewAll={goHome} onProductClick={handleOpenProduct} /></ScrollReveal>
         <ScrollReveal><ZevraEdit onExplore={goHome} /></ScrollReveal>
-        <ScrollReveal><ProductGrid categories={categories} products={catalog} loading={catalogLoading} error={catalogError} activeCategory="all" onCategoryChange={handleCategoryChange} onQuickView={handleOpenQuickView} /></ScrollReveal>
-        <ScrollReveal><Bestsellers products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onShopAll={goHome} /></ScrollReveal>
+        <ScrollReveal><ProductGrid categories={categories} products={catalog} loading={catalogLoading} error={catalogError} activeCategory="all" onCategoryChange={handleCategoryChange} onQuickView={handleOpenQuickView} onProductClick={handleOpenProduct} /></ScrollReveal>
+        <ScrollReveal><Bestsellers products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onShopAll={goHome} onProductClick={handleOpenProduct} /></ScrollReveal>
         <ScrollReveal><ZevraStandard /></ScrollReveal>
         <ScrollReveal><NewsletterSignup /></ScrollReveal>
       </>
@@ -241,7 +262,16 @@ export default function App() {
         <Footer categories={categories} onCategoryChange={handleCategoryChange} onPageChange={openPage} />
       )}
 
-      {searchOpen && <SearchPanel products={catalog} loading={catalogLoading} error={catalogError} onClose={() => setSearchOpen(false)} onQuickView={handleOpenQuickView} />}
+      {searchOpen && (
+        <SearchPanel
+          products={catalog}
+          loading={catalogLoading}
+          error={catalogError}
+          onClose={() => setSearchOpen(false)}
+          onQuickView={handleOpenQuickView}
+          onProductClick={handleOpenProduct}
+        />
+      )}
       {cartOpen && <CartDrawer items={items} subtotal={subtotal} onClose={() => setCartOpen(false)} onUpdateQuantity={updateQuantity} onRemove={removeItem} />}
       {quickViewProduct && <ProductQuickView product={quickViewProduct} onClose={handleCloseQuickView} onAddToCart={handleAddToCart} triggerRef={quickViewTrigger} />}
     </>
