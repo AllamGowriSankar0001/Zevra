@@ -15,6 +15,7 @@ export default function ProductDetailsPage({
 }) {
   const { user, isInWishlist, toggleWishlist, triggerRequireLogin } = useAuth();
 
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(
     product?.colours?.[0]?.name || product?.colors?.[0]?.name || ''
   );
@@ -58,6 +59,8 @@ export default function ProductDetailsPage({
     }
     return [];
   }, [product.images]);
+
+  const activeMainImage = images[activeImageIndex] || images[0] || '';
 
   // Available colours & sizes
   const colors = product.colours || product.colors || [];
@@ -158,182 +161,223 @@ export default function ProductDetailsPage({
         </nav>
       </div>
 
-      {/* ── Main Product Section ── */}
       <div className="container">
-        <div className="pdp-layout">
-          {/* Left Column: 2-Column Gallery Grid */}
-          <div className="pdp-gallery-col">
-            {images.length > 0 ? (
-              <div className={`pdp-gallery-grid ${images.length === 1 ? 'pdp-gallery-grid--single' : ''}`}>
-                {images.map((src, index) => (
-                  <div key={index} className="pdp-image-card">
-                    <img
-                      src={src}
-                      alt={`${product.name} view ${index + 1}`}
-                      className="pdp-gallery-img"
-                      loading={index < 2 ? 'eager' : 'lazy'}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="pdp-image-card pdp-image-card--illustration">
+        {/* ── TOP SECTION: Main Image & Purchase Details Side by Side ── */}
+        <div className="pdp-hero-split">
+          {/* Left: Main Product Image & Thumbnail Strip */}
+          <div className="pdp-hero-media">
+            <div className="pdp-main-image-card">
+              {activeMainImage ? (
+                <img
+                  src={activeMainImage}
+                  alt={product.name}
+                  className="pdp-main-img"
+                  loading="eager"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
                 <ProductIllustration
                   productId={product.id}
                   alt={product.name}
                   className="product-card__img product-card__illustration"
                 />
+              )}
+            </div>
+
+            {/* Thumbnail Strip (if multiple images) */}
+            {images.length > 1 && (
+              <div className="pdp-thumbnails-strip" aria-label="Product image angles">
+                {images.map((src, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`pdp-thumbnail-btn${activeImageIndex === idx ? ' active' : ''}`}
+                    onClick={() => setActiveImageIndex(idx)}
+                    title={`View angle ${idx + 1}`}
+                  >
+                    <img src={src} alt="" loading="lazy" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
 
-          {/* Right Column: Sticky Product Info */}
-          <div className="pdp-info-col">
-            <div className="pdp-info-sticky">
-              {/* Title & Wishlist Header */}
-              <div className="pdp-header-row">
-                <h1 className="pdp-title">{product.name}</h1>
-                <button
-                  type="button"
-                  className={`pdp-wishlist-btn${wishlisted ? ' pdp-wishlist-btn--active' : ''}`}
-                  onClick={handleToggleWishlist}
-                  title={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                  aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                >
-                  <Heart
-                    size={22}
-                    fill={wishlisted ? '#B91C1C' : 'none'}
-                    color={wishlisted ? '#B91C1C' : '#222222'}
-                    strokeWidth={1.5}
-                  />
-                </button>
-              </div>
+          {/* Right: Product Details, Size, Pincode & Add to Bag */}
+          <div className="pdp-hero-info">
+            {/* Title & Wishlist */}
+            <div className="pdp-header-row">
+              <h1 className="pdp-title">{product.name}</h1>
+              <button
+                type="button"
+                className={`pdp-wishlist-btn${wishlisted ? ' pdp-wishlist-btn--active' : ''}`}
+                onClick={handleToggleWishlist}
+                title={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+              >
+                <Heart
+                  size={22}
+                  fill={wishlisted ? '#B91C1C' : 'none'}
+                  color={wishlisted ? '#B91C1C' : '#222222'}
+                  strokeWidth={1.5}
+                />
+              </button>
+            </div>
 
-              {/* Price */}
-              <div className="pdp-price-row">
-                <span className="pdp-price">{formatPrice(product.price)}</span>
-                <span className="pdp-mrp-tag">MRP incl. of all taxes</span>
-              </div>
+            {/* Price */}
+            <div className="pdp-price-row">
+              <span className="pdp-price">{formatPrice(product.price)}</span>
+              <span className="pdp-mrp-tag">MRP incl. of all taxes</span>
+            </div>
 
-              <hr className="pdp-divider" />
+            <hr className="pdp-divider" />
 
-              {/* Color Selector */}
-              {colors.length > 0 && (
-                <div className="pdp-section">
-                  <div className="pdp-section-header">
-                    <span className="pdp-section-label">Color</span>
-                    {selectedColor && <span className="pdp-section-selected">{selectedColor}</span>}
-                  </div>
-                  <div className="pdp-colors-list">
-                    {colors.map(col => (
-                      <button
-                        key={col.name}
-                        type="button"
-                        className={`pdp-color-swatch${selectedColor === col.name ? ' active' : ''}`}
-                        style={{ backgroundColor: col.hex }}
-                        onClick={() => setSelectedColor(col.name)}
-                        title={col.name}
-                        aria-label={`Color: ${col.name}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Size Selector + Size Guide */}
+            {/* Color Selector */}
+            {colors.length > 0 && (
               <div className="pdp-section">
                 <div className="pdp-section-header">
-                  <span className="pdp-section-label">Size</span>
-                  <button
-                    type="button"
-                    className="pdp-size-guide-btn"
-                    onClick={() => setShowSizeGuide(true)}
-                  >
-                    Size Guide
-                  </button>
+                  <span className="pdp-section-label">Color</span>
+                  {selectedColor && <span className="pdp-section-selected">{selectedColor}</span>}
                 </div>
-                <div className="pdp-sizes-list" role="group" aria-label="Select size">
-                  {sizes.map(sz => (
+                <div className="pdp-colors-list">
+                  {colors.map(col => (
                     <button
-                      key={sz}
+                      key={col.name}
                       type="button"
-                      className={`pdp-size-pill${selectedSize === sz ? ' active' : ''}`}
-                      onClick={() => {
-                        setSelectedSize(sz);
-                        setValidationError('');
-                      }}
-                      aria-pressed={selectedSize === sz}
-                    >
-                      {sz}
-                    </button>
+                      className={`pdp-color-swatch${selectedColor === col.name ? ' active' : ''}`}
+                      style={{ backgroundColor: col.hex }}
+                      onClick={() => setSelectedColor(col.name)}
+                      title={col.name}
+                      aria-label={`Color: ${col.name}`}
+                    />
                   ))}
                 </div>
-                {validationError && (
-                  <p className="pdp-validation-error" role="alert">
-                    {validationError}
-                  </p>
-                )}
               </div>
+            )}
 
-              <hr className="pdp-divider" />
-
-              {/* Pincode Delivery Check */}
-              <div className="pdp-pincode-section">
-                <label htmlFor="pdp-pincode-input" className="pdp-pincode-title">
-                  Enter Pincode To Check Delivery Date
-                </label>
-                <form className="pdp-pincode-form" onSubmit={handleCheckPincode}>
-                  <div className="pdp-pincode-input-wrap">
-                    <MapPin size={16} className="pdp-pincode-icon" aria-hidden="true" />
-                    <input
-                      id="pdp-pincode-input"
-                      type="text"
-                      maxLength={6}
-                      inputMode="numeric"
-                      value={pincode}
-                      onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
-                      placeholder="Enter your shipping pincode"
-                      className="pdp-pincode-input"
-                    />
-                  </div>
-                  <button type="submit" className="pdp-pincode-btn">
-                    Check
-                  </button>
-                </form>
-
-                {pincodeError && (
-                  <p className="pdp-pincode-msg pdp-pincode-msg--error">{pincodeError}</p>
-                )}
-                {pincodeResult && (
-                  <div className="pdp-pincode-msg pdp-pincode-msg--success">
-                    <Check size={14} />
-                    <span>
-                      Delivery by <strong>{pincodeResult.dateStr}</strong> | Free Delivery
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Add to Bag Button */}
-              <div className="pdp-action-wrap">
+            {/* Size Selector + Size Guide */}
+            <div className="pdp-section">
+              <div className="pdp-section-header">
+                <span className="pdp-section-label">Size</span>
                 <button
                   type="button"
-                  className="btn-primary pdp-add-bag-btn"
-                  onClick={handleAdd}
+                  className="pdp-size-guide-btn"
+                  onClick={() => setShowSizeGuide(true)}
                 >
-                  Add to Bag
+                  Size Guide
                 </button>
-                {addSuccess && (
-                  <p className="pdp-success-toast">
-                    <Check size={15} /> Added to your shopping bag.
-                  </p>
-                )}
               </div>
+              <div className="pdp-sizes-list" role="group" aria-label="Select size">
+                {sizes.map(sz => (
+                  <button
+                    key={sz}
+                    type="button"
+                    className={`pdp-size-pill${selectedSize === sz ? ' active' : ''}`}
+                    onClick={() => {
+                      setSelectedSize(sz);
+                      setValidationError('');
+                    }}
+                    aria-pressed={selectedSize === sz}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+              {validationError && (
+                <p className="pdp-validation-error" role="alert">
+                  {validationError}
+                </p>
+              )}
+            </div>
 
-              {/* Accordions */}
+            <hr className="pdp-divider" />
+
+            {/* Pincode Delivery Check */}
+            <div className="pdp-pincode-section">
+              <label htmlFor="pdp-pincode-input" className="pdp-pincode-title">
+                Enter Pincode To Check Delivery Date
+              </label>
+              <form className="pdp-pincode-form" onSubmit={handleCheckPincode}>
+                <div className="pdp-pincode-input-wrap">
+                  <MapPin size={16} className="pdp-pincode-icon" aria-hidden="true" />
+                  <input
+                    id="pdp-pincode-input"
+                    type="text"
+                    maxLength={6}
+                    inputMode="numeric"
+                    value={pincode}
+                    onChange={e => setPincode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="Enter your shipping pincode"
+                    className="pdp-pincode-input"
+                  />
+                </div>
+                <button type="submit" className="pdp-pincode-btn">
+                  Check
+                </button>
+              </form>
+
+              {pincodeError && (
+                <p className="pdp-pincode-msg pdp-pincode-msg--error">{pincodeError}</p>
+              )}
+              {pincodeResult && (
+                <div className="pdp-pincode-msg pdp-pincode-msg--success">
+                  <Check size={14} />
+                  <span>
+                    Delivery by <strong>{pincodeResult.dateStr}</strong> | Free Delivery
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Add to Bag Button */}
+            <div className="pdp-action-wrap">
+              <button
+                type="button"
+                className="btn-primary pdp-add-bag-btn"
+                onClick={handleAdd}
+              >
+                Add to Bag
+              </button>
+              {addSuccess && (
+                <p className="pdp-success-toast">
+                  <Check size={15} /> Added to your shopping bag.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── BOTTOM SECTION: Underneath Both Elements ── */}
+        <div className="pdp-bottom-details">
+          <hr className="pdp-divider-bold" />
+
+          <div className={`pdp-bottom-grid ${images.length <= 1 ? 'pdp-bottom-grid--single' : ''}`}>
+            {/* Left: Remaining Image Gallery (Multiple Angles & Views) */}
+            {images.length > 1 && (
+              <div className="pdp-remaining-gallery">
+                <h3 className="pdp-bottom-heading">Product Views & Details</h3>
+                <div className="pdp-remaining-images-grid">
+                  {images.map((src, idx) => (
+                    <div
+                      key={idx}
+                      className="pdp-extra-image-card"
+                      onClick={() => {
+                        setActiveImageIndex(idx);
+                        window.scrollTo({ top: 100, behavior: 'smooth' });
+                      }}
+                      title="Click to view as main image"
+                    >
+                      <img src={src} alt={`${product.name} angle ${idx + 1}`} loading="lazy" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Right / Center: Comprehensive Accordions & Information */}
+            <div className="pdp-bottom-accordions-col">
+              <h3 className="pdp-bottom-heading">Information & Care</h3>
               <div className="pdp-accordions">
                 {/* 1. Product Details and Overview */}
                 <div className="pdp-accordion-item">
@@ -490,4 +534,3 @@ export default function ProductDetailsPage({
     </div>
   );
 }
-
