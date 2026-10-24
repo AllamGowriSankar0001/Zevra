@@ -163,15 +163,26 @@ export default function App() {
     goHome();
   }
 
+  function handleGoBack() {
+    clearAuthNotice();
+    if (returnPage) {
+      openPage(returnPage);
+      setReturnPage(null);
+    } else {
+      goHome();
+    }
+  }
+
+  const isAuthPage     = currentPage === 'login' || currentPage === 'signup';
   const isCategoryPage = categories.some(category => category.id === currentPage);
   const InfoComponent  = currentPage && INFO_PAGES[currentPage];
 
   function renderPage() {
-    if (currentPage === 'login')    return <LoginPage   onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
-    if (currentPage === 'signup')   return <SignupPage  onSuccess={handleAuthSuccess} onGoLogin={() => openPage('login')} />;
-    if (currentPage === 'profile')  return user ? <MyProfile   user={user} onUpdate={u => setUser?.(u)} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
-    if (currentPage === 'orders')   return user ? <MyOrders /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
-    if (currentPage === 'wishlist') return user ? <MyWishlist  onQuickView={handleOpenQuickView} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
+    if (currentPage === 'login')    return <LoginPage   onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
+    if (currentPage === 'signup')   return <SignupPage  onSuccess={handleAuthSuccess} onGoLogin={() => openPage('login')} onBack={handleGoBack} />;
+    if (currentPage === 'profile')  return user ? <MyProfile   user={user} onUpdate={u => setUser?.(u)} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
+    if (currentPage === 'orders')   return user ? <MyOrders /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
+    if (currentPage === 'wishlist') return user ? <MyWishlist  onQuickView={handleOpenQuickView} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} onBack={handleGoBack} />;
     if (isCategoryPage)             return <CategoryPage categoryId={currentPage} categories={categories} products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onCategoryChange={handleCategoryChange} />;
     if (InfoComponent)              return <ScrollReveal><InfoComponent /></ScrollReveal>;
     return (
@@ -191,31 +202,33 @@ export default function App() {
 
   return (
     <>
-      <Header
-        itemCount={itemCount}
-        onCartOpen={() => setCartOpen(true)}
-        onSearchOpen={() => setSearchOpen(true)}
-        activeCategory={isCategoryPage ? currentPage : 'all'}
-        categories={categories}
-        onCategoryChange={handleCategoryChange}
-        onLogoClick={goHome}
-        user={user}
-        onLogout={handleLogout}
-        onLogin={() => { clearAuthNotice(); openPage('login'); }}
-        onSignup={() => { clearAuthNotice(); openPage('signup'); }}
-        onProfile={() => openPage('profile')}
-        onOrders={() => openPage('orders')}
-        onWishlist={() => {
-          if (!user) {
-            triggerRequireLogin('Please sign in to view your wishlist.');
-          } else {
-            openPage('wishlist');
-          }
-        }}
-      />
+      {!isAuthPage && (
+        <Header
+          itemCount={itemCount}
+          onCartOpen={() => setCartOpen(true)}
+          onSearchOpen={() => setSearchOpen(true)}
+          activeCategory={isCategoryPage ? currentPage : 'all'}
+          categories={categories}
+          onCategoryChange={handleCategoryChange}
+          onLogoClick={goHome}
+          user={user}
+          onLogout={handleLogout}
+          onLogin={() => { clearAuthNotice(); openPage('login'); }}
+          onSignup={() => { clearAuthNotice(); openPage('signup'); }}
+          onProfile={() => openPage('profile')}
+          onOrders={() => openPage('orders')}
+          onWishlist={() => {
+            if (!user) {
+              triggerRequireLogin('Please sign in to view your wishlist.');
+            } else {
+              openPage('wishlist');
+            }
+          }}
+        />
+      )}
 
       <main id="main-content">
-        {categoriesError && (
+        {categoriesError && !isAuthPage && (
           <div className="catalog-error container" role="alert">
             <span>Categories could not be loaded: {categoriesError}</span>
             <button type="button" onClick={() => setCategoryRefreshToken(token => token + 1)}>Try again</button>
@@ -224,7 +237,9 @@ export default function App() {
         {renderPage()}
       </main>
 
-      <Footer categories={categories} onCategoryChange={handleCategoryChange} onPageChange={openPage} />
+      {!isAuthPage && (
+        <Footer categories={categories} onCategoryChange={handleCategoryChange} onPageChange={openPage} />
+      )}
 
       {searchOpen && <SearchPanel products={catalog} loading={catalogLoading} error={catalogError} onClose={() => setSearchOpen(false)} onQuickView={handleOpenQuickView} />}
       {cartOpen && <CartDrawer items={items} subtotal={subtotal} onClose={() => setCartOpen(false)} onUpdateQuantity={updateQuantity} onRemove={removeItem} />}

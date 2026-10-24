@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
-export default function SignupPage({ onSuccess, onGoLogin }) {
+export default function SignupPage({ onSuccess, onGoLogin, onBack }) {
   const { register, loading, error, setError, authNotice } = useAuth();
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
@@ -21,6 +22,19 @@ export default function SignupPage({ onSuccess, onGoLogin }) {
 
   return (
     <div className="auth-page auth-page--customer">
+      {/* Floating Back Button */}
+      {onBack && (
+        <button
+          type="button"
+          className="auth-page__floating-back"
+          onClick={onBack}
+          aria-label="Back to store"
+        >
+          <ArrowLeft size={16} />
+          <span>Back to Store</span>
+        </button>
+      )}
+
       <div className="auth-page__layout">
         <aside className="auth-page__story" aria-label="ZEVRA collection">
           <div className="auth-page__story-copy">
@@ -32,8 +46,27 @@ export default function SignupPage({ onSuccess, onGoLogin }) {
 
         <section className="auth-page__panel" aria-labelledby="signup-title">
           <div className="auth-page__card">
-            <div className="auth-page__brand">
-              <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
+            <div className="auth-page__card-top">
+              {onBack && (
+                <button
+                  type="button"
+                  className="auth-page__back-link"
+                  onClick={onBack}
+                  aria-label="Back to store"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Store</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="auth-page__brand"
+                onClick={onBack}
+                title="Return to store"
+              >
+                <img src="/images/brand/logo.png" alt="ZEVRA" className="auth-page__logo" />
+              </button>
             </div>
 
             <p className="auth-page__eyebrow auth-page__eyebrow--form">A better everyday starts here</p>
