@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, X, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { Search, X, RotateCcw } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
-import ScrollReveal from '../components/ScrollReveal';
 
 const SORT_OPTIONS = [
   { value: 'default',    label: 'Featured' },
@@ -89,8 +88,6 @@ export default function CategoryPage({ categoryId, categories, products, loading
       default:           return filtered;
     }
   }, [categoryProductsAll, search, color, maxPrice, minPrice, size, sort]);
-
-  const otherCategories = categories.filter(category => category.id !== categoryId && (!category.parent || category.parent !== meta.parent));
 
   const sizes = [...new Set(categoryProductsAll.flatMap(product => [
     ...(product.sizes || []),
@@ -315,28 +312,6 @@ export default function CategoryPage({ categoryId, categories, products, loading
           </div>
         )}
       </div>
-
-      {/* ── Other Categories ── */}
-      {otherCategories.length > 0 && (
-        <ScrollReveal>
-          <div className="cat-page__other">
-            <div className="container">
-              <p className="cat-page__other-title">Explore Other Collections</p>
-              <div className="cat-page__other-grid">
-                {otherCategories.map(cat => (
-                  <button
-                    key={cat.id}
-                    className="cat-page__other-btn"
-                    onClick={() => onCategoryChange(cat.id)}
-                  >
-                    {cat.label} →
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
-      )}
     </div>
   );
 }
