@@ -22,19 +22,6 @@ export default function SignupPage({ onSuccess, onGoLogin, onBack }) {
 
   return (
     <div className="auth-page auth-page--customer">
-      {/* Floating Back Button */}
-      {onBack && (
-        <button
-          type="button"
-          className="auth-page__floating-back"
-          onClick={onBack}
-          aria-label="Back to store"
-        >
-          <ArrowLeft size={16} />
-          <span>Back to Store</span>
-        </button>
-      )}
-
       <div className="auth-page__layout">
         <aside className="auth-page__story" aria-label="ZEVRA collection">
           <div className="auth-page__story-copy">

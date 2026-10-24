@@ -66,6 +66,14 @@
   --transition:   var(--dur-base) var(--ease-out);
 }
 
+@media (max-width: 640px) {
+  :root {
+    --gutter: 1rem;
+    --section-v: 2.75rem;
+    --header-h: 62px;
+  }
+}
+
 /* ── Base ───────────────────────────────────────────────────── */
 html {
   font-size: 16px;
