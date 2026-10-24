@@ -42,7 +42,16 @@ const INFO_PAGES = {
 
 export default function App() {
   const { items, addItem, updateQuantity, removeItem, itemCount, subtotal } = useCart();
-  const { user, logout, setUser } = useAuth();
+  const {
+    user,
+    logout,
+    setUser,
+    requireLoginTrigger,
+    clearAuthNotice,
+    pendingAction,
+    toggleWishlist,
+    triggerRequireLogin,
+  } = useAuth();
 
   const [catalog, setCatalog] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -55,6 +64,47 @@ export default function App() {
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [quickViewTrigger, setQuickViewTrigger] = useState(null);
   const [currentPage, setCurrentPage] = useState(null);
+  const [returnPage, setReturnPage] = useState(null);
+
+  // Automatically navigate to login page when requireLogin is triggered
+  useEffect(() => {
+    if (requireLoginTrigger) {
+      if (currentPage !== 'login' && currentPage !== 'signup') {
+        setReturnPage(currentPage);
+      }
+      setCurrentPage('login');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [requireLoginTrigger]);
+
+  async function handleAuthSuccess() {
+    if (pendingAction) {
+      if (pendingAction.type === 'wishlist' && pendingAction.productId) {
+        try {
+          await toggleWishlist(pendingAction.productId);
+        } catch {
+          // ignore
+        }
+      } else if (pendingAction.type === 'cart' && pendingAction.product) {
+        addItem(
+          pendingAction.product,
+          pendingAction.colour || '',
+          pendingAction.size || '',
+          pendingAction.quantity || 1
+        );
+        setCartOpen(true);
+      }
+    }
+
+    clearAuthNotice();
+
+    if (returnPage) {
+      openPage(returnPage);
+      setReturnPage(null);
+    } else {
+      goHome();
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -117,11 +167,11 @@ export default function App() {
   const InfoComponent  = currentPage && INFO_PAGES[currentPage];
 
   function renderPage() {
-    if (currentPage === 'login')    return <LoginPage   onSuccess={goHome} onGoSignup={() => openPage('signup')} />;
-    if (currentPage === 'signup')   return <SignupPage  onSuccess={goHome} onGoLogin={() => openPage('login')} />;
-    if (currentPage === 'profile')  return <MyProfile   user={user} onUpdate={u => setUser?.(u)} />;
-    if (currentPage === 'orders')   return <MyOrders />;
-    if (currentPage === 'wishlist') return <MyWishlist  onQuickView={handleOpenQuickView} />;
+    if (currentPage === 'login')    return <LoginPage   onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
+    if (currentPage === 'signup')   return <SignupPage  onSuccess={handleAuthSuccess} onGoLogin={() => openPage('login')} />;
+    if (currentPage === 'profile')  return user ? <MyProfile   user={user} onUpdate={u => setUser?.(u)} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
+    if (currentPage === 'orders')   return user ? <MyOrders /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
+    if (currentPage === 'wishlist') return user ? <MyWishlist  onQuickView={handleOpenQuickView} /> : <LoginPage onSuccess={handleAuthSuccess} onGoSignup={() => openPage('signup')} />;
     if (isCategoryPage)             return <CategoryPage categoryId={currentPage} categories={categories} products={catalog} loading={catalogLoading} error={catalogError} onQuickView={handleOpenQuickView} onCategoryChange={handleCategoryChange} />;
     if (InfoComponent)              return <ScrollReveal><InfoComponent /></ScrollReveal>;
     return (
@@ -151,11 +201,17 @@ export default function App() {
         onLogoClick={goHome}
         user={user}
         onLogout={handleLogout}
-        onLogin={() => openPage('login')}
-        onSignup={() => openPage('signup')}
+        onLogin={() => { clearAuthNotice(); openPage('login'); }}
+        onSignup={() => { clearAuthNotice(); openPage('signup'); }}
         onProfile={() => openPage('profile')}
         onOrders={() => openPage('orders')}
-        onWishlist={() => openPage('wishlist')}
+        onWishlist={() => {
+          if (!user) {
+            triggerRequireLogin('Please sign in to view your wishlist.');
+          } else {
+            openPage('wishlist');
+          }
+        }}
       />
 
       <main id="main-content">

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 
 export default function SignupPage({ onSuccess, onGoLogin }) {
-  const { register, loading, error, setError } = useAuth();
+  const { register, loading, error, setError, authNotice } = useAuth();
   const [name, setName]         = useState('');
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +39,13 @@ export default function SignupPage({ onSuccess, onGoLogin }) {
             <p className="auth-page__eyebrow auth-page__eyebrow--form">A better everyday starts here</p>
             <h1 className="auth-page__title" id="signup-title">Create your account</h1>
             <p className="auth-page__sub">Join ZEVRA for a more considered wardrobe.</p>
+
+            {authNotice && (
+              <div className="auth-page__notice" role="status">
+                <span className="auth-page__notice-dot" aria-hidden="true" />
+                <span>{authNotice}</span>
+              </div>
+            )}
 
             <form className="auth-page__form" onSubmit={handleSubmit} noValidate>
               <div className="auth-page__field">

@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Heart, Eye } from 'lucide-react';
 import { formatPrice } from '../data/products';
-import { wishlistApi } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 import ProductIllustration from './ProductIllustration';
 
 export default function ProductCard({ product, onQuickView }) {
+  const { user, isInWishlist, toggleWishlist, triggerRequireLogin } = useAuth();
   const [imgError, setImgError] = useState({ primary: false, secondary: false });
-  const [wishlisted, setWishlisted] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colours?.[0]?.name || '');
+
+  const productId = product.id || product._id;
+  const wishlisted = isInWishlist(productId);
 
   const [primarySrc, secondarySrc] = product.images || [];
   const showRealPrimary   = primarySrc && !imgError.primary;
@@ -20,21 +23,31 @@ export default function ProductCard({ product, onQuickView }) {
 
   async function handleToggleWishlist(e) {
     e.stopPropagation();
-    const nextState = !wishlisted;
-    setWishlisted(nextState);
+    if (!user) {
+      triggerRequireLogin('Please sign in to save items to your wishlist.', {
+        type: 'wishlist',
+        productId,
+      });
+      return;
+    }
+
     try {
-      if (nextState) {
-        await wishlistApi.add(product.id || product._id);
-      } else {
-        await wishlistApi.remove(product.id || product._id);
-      }
+      await toggleWishlist(productId);
     } catch {
-      // Graceful fallback for demo or guest mode
+      // Graceful fallback
     }
   }
 
   function handleSizeClick(e, size) {
     e.stopPropagation();
+    if (!user) {
+      triggerRequireLogin('Please sign in to add items to your shopping bag.', {
+        type: 'cart',
+        product,
+        size,
+      });
+      return;
+    }
     onQuickView?.(product, null, { initialSize: size });
   }
 

@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Check } from 'lucide-react';
+import { X, Check, Heart } from 'lucide-react';
 import { formatPrice } from '../data/products';
+import { useAuth } from '../hooks/useAuth';
 import ProductIllustration from './ProductIllustration';
 
 export default function ProductQuickView({ product, onClose, onAddToCart, triggerRef }) {
+  const { user, isInWishlist, toggleWishlist, triggerRequireLogin } = useAuth();
   const colours = product.colours || [];
   const sizes = product.sizes || [];
   const [selectedColour, setSelectedColour] = useState(null);
@@ -15,6 +17,9 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
 
   const dialogRef = useRef(null);
   const closeRef  = useRef(null);
+
+  const productId = product.id || product._id;
+  const wishlisted = isInWishlist(productId);
 
   // Lock body scroll
   useEffect(() => {
@@ -60,9 +65,38 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
     if (colours.length > 0 && !selectedColour) { setError('Please select a colour.'); return; }
     if (sizes.length > 0 && !selectedSize) { setError('Please select a size.'); return; }
     setError('');
+
+    if (!user) {
+      onClose();
+      triggerRequireLogin('Please sign in to add items to your shopping bag.', {
+        type: 'cart',
+        product,
+        colour: selectedColour || '',
+        size: selectedSize || '',
+        quantity,
+      });
+      return;
+    }
+
     onAddToCart(product, selectedColour || '', selectedSize || '', quantity);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 2800);
+  }
+
+  async function handleWishlistClick() {
+    if (!user) {
+      onClose();
+      triggerRequireLogin('Please sign in to save items to your wishlist.', {
+        type: 'wishlist',
+        productId,
+      });
+      return;
+    }
+    try {
+      await toggleWishlist(productId);
+    } catch {
+      // fallback
+    }
   }
 
   const primarySrc     = product.images[0];
@@ -191,14 +225,39 @@ export default function ProductQuickView({ product, onClose, onAddToCart, trigge
             </div>
           )}
 
-          {/* Add to bag */}
-          <button
-            className="btn-primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-            onClick={handleAdd}
-          >
-            Add to Bag
-          </button>
+          {/* Add to bag & Wishlist */}
+          <div style={{ display: 'flex', gap: '0.625rem', marginTop: '0.25rem' }}>
+            <button
+              className="btn-primary"
+              style={{ flex: 1, justifyContent: 'center' }}
+              onClick={handleAdd}
+            >
+              Add to Bag
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{
+                width: '46px',
+                minWidth: '46px',
+                height: '46px',
+                padding: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+              onClick={handleWishlistClick}
+              title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart
+                size={18}
+                fill={wishlisted ? '#B91C1C' : 'none'}
+                color={wishlisted ? '#B91C1C' : 'currentColor'}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

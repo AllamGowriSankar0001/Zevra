@@ -2487,6 +2487,31 @@
   flex-direction: column;
   gap: 0.25rem;
 }
+
+/* Auth Notice Banner (when login is required for Wishlist / Cart) */
+.auth-page__notice {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1.1rem;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-xs);
+  color: #92400E;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 1.35rem;
+  animation: fadeIn 220ms ease;
+}
+.auth-page__notice-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #D97706;
+  flex-shrink: 0;
+}
 .auth-page__brand {
   margin-bottom: 1.5rem;
 }

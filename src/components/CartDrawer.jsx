@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { formatPrice } from '../data/products';
+import { useAuth } from '../hooks/useAuth';
 
 export default function CartDrawer({ items, subtotal, onClose, onUpdateQuantity, onRemove }) {
+  const { user, triggerRequireLogin } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
   const drawerRef = useRef(null);
   const closeRef  = useRef(null);
@@ -107,7 +109,17 @@ export default function CartDrawer({ items, subtotal, onClose, onUpdateQuantity,
               <span className="cart-drawer__subtotal-amount">{formatPrice(subtotal)}</span>
             </div>
 
-            {showCheckout ? (
+            {!user ? (
+              <button
+                className="btn-primary cart-drawer__checkout"
+                onClick={() => {
+                  onClose();
+                  triggerRequireLogin('Please sign in to proceed with checkout.');
+                }}
+              >
+                Sign In to Checkout
+              </button>
+            ) : showCheckout ? (
               <div className="checkout-demo" role="status">
                 <strong style={{ display: 'block', marginBottom: '0.375rem' }}>Demo only — no order placed.</strong>
                 This is a storefront demo. No payment is taken and no order is created.
