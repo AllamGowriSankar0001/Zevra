@@ -11,7 +11,13 @@ async function listProducts(req, res, next) {
 
     const filter = { isActive: true, isAdminCreated: true };
     if (category && typeof category === 'string') {
-      filter.category = category.toLowerCase();
+      const catSlug = category.toLowerCase().trim();
+      const subcategories = await Category.find({ parent: catSlug, isActive: true }).select('slug').lean();
+      if (subcategories.length > 0) {
+        filter.category = { $in: [catSlug, ...subcategories.map(s => s.slug)] };
+      } else {
+        filter.category = catSlug;
+      }
     }
     if (search && typeof search === 'string' && search.trim()) {
       const safe = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -46,6 +52,7 @@ async function getCategories(req, res, next) {
           description: category.description,
           sizeOptions: category.sizeOptions || [],
           imageUrl: category.imageUrl || '',
+          parent: category.parent || null,
         })),
       },
     });

@@ -89,6 +89,7 @@ export const productApi = {
           ...category,
           id: category.slug || category.id,
           label: category.name || category.label,
+          parent: category.parent || null,
         })),
       },
     };

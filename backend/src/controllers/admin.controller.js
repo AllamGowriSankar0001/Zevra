@@ -118,7 +118,15 @@ async function listProducts(req, res, next) {
   try {
     const { page, limit, skip } = paginate(req.query.page, req.query.limit);
     const filter = { isAdminCreated: true };
-    if (req.query.category) filter.category = req.query.category;
+    if (req.query.category) {
+      const catSlug = req.query.category.toLowerCase().trim();
+      const subcats = await Category.find({ parent: catSlug }).select('slug').lean();
+      if (subcats.length > 0) {
+        filter.category = { $in: [catSlug, ...subcats.map(s => s.slug)] };
+      } else {
+        filter.category = catSlug;
+      }
+    }
     if (req.query.status === 'active')   filter.isActive = true;
     if (req.query.status === 'inactive') filter.isActive = false;
     if (req.query.search) {
@@ -241,6 +249,7 @@ async function getCategories(req, res, next) {
       description: category.description,
       sizeOptions: category.sizeOptions || [],
       imageUrl: category.imageUrl || '',
+      parent: category.parent || null,
       isActive: category.isActive,
       count: map[category.slug] || 0,
     }));
@@ -255,6 +264,9 @@ async function createCategory(req, res, next) {
       ? req.body.slug.trim().toLowerCase()
       : name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
+    const parent = typeof req.body.parent === 'string' && req.body.parent.trim()
+      ? req.body.parent.trim().toLowerCase()
+      : null;
     if (req.body.imageUrl !== undefined && typeof req.body.imageUrl !== 'string')
       return res.status(400).json({ success: false, message: 'Category image URL must be text.' });
     const imageUrl = typeof req.body.imageUrl === 'string' ? req.body.imageUrl.trim() : '';
@@ -269,7 +281,7 @@ async function createCategory(req, res, next) {
       return res.status(400).json({ success: false, message: 'Enter a category name and a valid URL slug.' });
     const exists = await Category.exists({ slug });
     if (exists) return res.status(409).json({ success: false, message: 'A category with this slug already exists.' });
-    const category = await Category.create({ name, slug, description, sizeOptions, imageUrl });
+    const category = await Category.create({ name, slug, description, sizeOptions, imageUrl, parent });
     res.status(201).json({ success: true, message: 'Category created.', data: { category } });
   } catch (err) { next(err); }
 }
@@ -281,6 +293,11 @@ async function updateCategory(req, res, next) {
     const updates = {};
     if (typeof req.body.name === 'string') updates.name = req.body.name.trim();
     if (typeof req.body.description === 'string') updates.description = req.body.description.trim();
+    if (req.body.parent !== undefined) {
+      updates.parent = typeof req.body.parent === 'string' && req.body.parent.trim()
+        ? req.body.parent.trim().toLowerCase()
+        : null;
+    }
     if (req.body.imageUrl !== undefined && typeof req.body.imageUrl !== 'string')
       return res.status(400).json({ success: false, message: 'Category image URL must be text.' });
     if (typeof req.body.imageUrl === 'string') {
@@ -310,6 +327,9 @@ async function deleteCategory(req, res, next) {
       return res.status(400).json({ success: false, message: 'Invalid category ID.' });
     const category = await Category.findById(req.params.id);
     if (!category) return res.status(404).json({ success: false, message: 'Category not found.' });
+    const subcatCount = await Category.countDocuments({ parent: category.slug });
+    if (subcatCount > 0)
+      return res.status(409).json({ success: false, message: 'This category has subcategories. Reassign or remove its subcategories first.' });
     const productCount = await Product.countDocuments({ category: category.slug });
     if (productCount > 0)
       return res.status(409).json({ success: false, message: 'Move or delete this category’s products before removing the category.' });
@@ -325,7 +345,15 @@ async function getInventory(req, res, next) {
   try {
     const { page, limit, skip } = paginate(req.query.page, req.query.limit);
     const filter = { isAdminCreated: true };
-    if (req.query.category) filter.category = req.query.category;
+    if (req.query.category) {
+      const catSlug = req.query.category.toLowerCase().trim();
+      const subcats = await Category.find({ parent: catSlug }).select('slug').lean();
+      if (subcats.length > 0) {
+        filter.category = { $in: [catSlug, ...subcats.map(s => s.slug)] };
+      } else {
+        filter.category = catSlug;
+      }
+    }
     if (req.query.search) {
       const s = req.query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       filter.name = { $regex: s, $options: 'i' };

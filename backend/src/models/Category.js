@@ -6,7 +6,10 @@ const categorySchema = new mongoose.Schema({
   description: { type: String, trim: true, default: '' },
   sizeOptions: { type: [String], default: [] },
   imageUrl:    { type: String, trim: true, default: '' },
+  parent:      { type: String, default: null, lowercase: true, trim: true },
   isActive:    { type: Boolean, default: true },
 }, { timestamps: true });
+
+categorySchema.index({ parent: 1 });
 
 module.exports = mongoose.model('Category', categorySchema);

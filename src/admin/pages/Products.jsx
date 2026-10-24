@@ -221,7 +221,14 @@ export default function Products() {
                 <label>Category *</label>
                 <select value={form.category} onChange={e => setForm(f=>({...f,category:e.target.value}))} required>
                   <option value="" disabled>Select category</option>
-                  {categories.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+                  {categories.map(c => {
+                    const parent = c.parent ? categories.find(p => p.slug === c.parent) : null;
+                    return (
+                      <option key={c.slug} value={c.slug}>
+                        {parent ? `${parent.name} › ${c.name}` : c.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div className="admin-field">
@@ -389,7 +396,14 @@ export default function Products() {
         </div>
         <select className="admin-select" value={category} onChange={e => { setCategory(e.target.value); setPage(1); }}>
           <option value="">All Categories</option>
-          {categories.map(c => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+          {categories.map(c => {
+            const parent = c.parent ? categories.find(p => p.slug === c.parent) : null;
+            return (
+              <option key={c.slug} value={c.slug}>
+                {parent ? `${parent.name} › ${c.name}` : c.name}
+              </option>
+            );
+          })}
         </select>
         <select className="admin-select" value={status} onChange={e => { setStatus(e.target.value); setPage(1); }}>
           <option value="">All Status</option>

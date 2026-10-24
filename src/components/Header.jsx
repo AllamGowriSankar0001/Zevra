@@ -19,6 +19,8 @@ export default function Header({ itemCount, categories, onCartOpen, onSearchOpen
   }
 
   const navCategories = categories || [];
+  const parentCategories = navCategories.filter(c => !c.parent);
+  const getSubcategories = (parentSlug) => navCategories.filter(c => c.parent === parentSlug);
 
   return (
     <>
@@ -36,15 +38,52 @@ export default function Header({ itemCount, categories, onCartOpen, onSearchOpen
 
           {/* Desktop nav */}
           <nav className="header__nav" aria-label="Product categories">
-            {navCategories.map(cat => (
-              <button
-                key={cat.id}
-                className={`header__nav-link${activeCategory === cat.id ? ' active' : ''}`}
-                onClick={() => handleNavClick(cat.id)}
-              >
-                {cat.label}
-              </button>
-            ))}
+            {parentCategories.map(cat => {
+              const subcats = getSubcategories(cat.id);
+              const isSubActive = subcats.some(s => s.id === activeCategory);
+              const isCatActive = activeCategory === cat.id || isSubActive;
+
+              if (subcats.length === 0) {
+                return (
+                  <button
+                    key={cat.id}
+                    className={`header__nav-link${isCatActive ? ' active' : ''}`}
+                    onClick={() => handleNavClick(cat.id)}
+                  >
+                    {cat.label}
+                  </button>
+                );
+              }
+
+              return (
+                <div key={cat.id} className="header__nav-dropdown-wrap">
+                  <button
+                    className={`header__nav-link header__nav-link--has-sub${isCatActive ? ' active' : ''}`}
+                    onClick={() => handleNavClick(cat.id)}
+                  >
+                    <span>{cat.label}</span>
+                    <ChevronDown size={13} className="header__nav-arrow" aria-hidden="true" />
+                  </button>
+                  <div className="header__nav-dropdown">
+                    <button
+                      className="header__dropdown-item header__dropdown-item--all"
+                      onClick={() => handleNavClick(cat.id)}
+                    >
+                      All {cat.label}
+                    </button>
+                    {subcats.map(sub => (
+                      <button
+                        key={sub.id}
+                        className={`header__dropdown-item${activeCategory === sub.id ? ' active' : ''}`}
+                        onClick={() => handleNavClick(sub.id)}
+                      >
+                        {sub.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </nav>
 
           {/* Actions */}
@@ -142,6 +181,8 @@ function MobileMenuInline({ onClose, categories, onCategoryChange, onSearchOpen,
   }, [onClose]);
 
   const navCategories = categories || [];
+  const parentCategories = navCategories.filter(c => !c.parent);
+  const getSubcategories = (parentSlug) => navCategories.filter(c => c.parent === parentSlug);
 
   return (
     <div className="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobile navigation menu">
@@ -158,18 +199,49 @@ function MobileMenuInline({ onClose, categories, onCategoryChange, onSearchOpen,
 
         {/* Category nav */}
         <nav className="mobile-menu__nav" aria-label="Product categories">
-          {navCategories.map(cat => (
-            <button
-              key={cat.id}
-              className={`mobile-menu__nav-link${activeCategory === cat.id ? ' active' : ''}`}
-              onClick={() => onCategoryChange(cat.id)}
-            >
-              {cat.label}
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-                <path d="M4 8h8M9 5l3 3-3 3" />
-              </svg>
-            </button>
-          ))}
+          {parentCategories.map(cat => {
+            const subcats = getSubcategories(cat.id);
+            const isSubActive = subcats.some(s => s.id === activeCategory);
+            const isCatActive = activeCategory === cat.id || isSubActive;
+
+            if (subcats.length === 0) {
+              return (
+                <button
+                  key={cat.id}
+                  className={`mobile-menu__nav-link${isCatActive ? ' active' : ''}`}
+                  onClick={() => onCategoryChange(cat.id)}
+                >
+                  {cat.label}
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <path d="M4 8h8M9 5l3 3-3 3" />
+                  </svg>
+                </button>
+              );
+            }
+
+            return (
+              <div key={cat.id} className="mobile-menu__group">
+                <button
+                  className={`mobile-menu__nav-link mobile-menu__nav-link--parent${isCatActive ? ' active' : ''}`}
+                  onClick={() => onCategoryChange(cat.id)}
+                >
+                  <span>{cat.label}</span>
+                  <span className="mobile-menu__all-tag">View All</span>
+                </button>
+                <div className="mobile-menu__subcats">
+                  {subcats.map(sub => (
+                    <button
+                      key={sub.id}
+                      className={`mobile-menu__sub-link${activeCategory === sub.id ? ' active' : ''}`}
+                      onClick={() => onCategoryChange(sub.id)}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </nav>
 
         {/* Actions */}
