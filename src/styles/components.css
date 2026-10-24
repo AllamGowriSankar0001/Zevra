@@ -2686,35 +2686,15 @@
   padding-top: var(--header-h);
 }
 
-/* Hero banner — Modern Luxury Editorial Layout */
-.cat-page__hero {
-  position: relative;
-  background: linear-gradient(135deg, #171513 0%, #24201D 100%);
-  color: #FFFFFF;
-  padding: 3rem 0 2.5rem;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* Category Page Header — Seamless Luxury Aesthetic (No Dark Banner) */
+.cat-page__header {
+  padding-top: 2rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-divider);
 }
 
-.cat-page__hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 80% 30%, rgba(226, 201, 168, 0.08), transparent 70%);
-  pointer-events: none;
-}
-
-.cat-page__hero-container {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2.5rem;
-}
-
-.cat-page__hero-main {
-  flex: 1 1 100%;
-  max-width: 900px;
+.cat-page__header-main {
+  max-width: 860px;
 }
 
 /* Breadcrumbs */
@@ -2726,20 +2706,20 @@
   font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
-  margin-bottom: 0.75rem;
+  color: var(--color-secondary);
+  margin-bottom: 0.85rem;
 }
 
 .cat-page__bc-sep {
-  opacity: 0.35;
+  opacity: 0.4;
 }
 
 .cat-page__bc-link {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--color-secondary);
   cursor: pointer;
   padding: 0;
   font: inherit;
@@ -2749,96 +2729,155 @@
 }
 
 .cat-page__bc-link:hover {
-  color: #FFFFFF;
+  color: var(--color-text);
   text-decoration: underline;
 }
 
 .cat-page__bc-current {
-  color: #E2C9A8;
+  color: var(--color-text);
+  font-weight: 600;
 }
 
 .cat-page__eyebrow {
+  display: inline-block;
   font-family: var(--font-ui);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #E2C9A8;
-  margin-bottom: 0.4rem;
+  color: var(--color-secondary);
+  margin-bottom: 0.35rem;
 }
 
 .cat-page__title {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.015em;
-  color: #FFFFFF;
-  margin-bottom: 0.6rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
 }
 
 .cat-page__desc {
   font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.75);
-  max-width: 520px;
+  color: var(--color-text-soft);
+  max-width: 560px;
   line-height: 1.6;
   margin-bottom: 1.25rem;
 }
 
-/* Subcategory Navigation Pills */
+/* Subcategory Navigation Pills (Natural Light Theme) */
 .cat-page__subcat-nav {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .cat-page__subcat-label {
   font-family: var(--font-ui);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-secondary);
 }
 
 .cat-page__subcat-pills {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .cat-page__subcat-pill {
   font-family: var(--font-ui);
   font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  padding: 0.4rem 0.9rem;
+  letter-spacing: 0.03em;
+  padding: 0.38rem 0.95rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.85);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  color: var(--color-text-soft);
   cursor: pointer;
   transition: all var(--transition);
 }
 
 .cat-page__subcat-pill:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  border-color: var(--color-text);
 }
 
 .cat-page__subcat-pill--active {
-  background: #FFFFFF !important;
-  color: #111111 !important;
-  border-color: #FFFFFF !important;
+  background: #111111 !important;
+  color: #FFFFFF !important;
+  border-color: #111111 !important;
   font-weight: 600;
+}
+
+/* Active Filters Strip */
+.cat-page__active-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-xs);
+}
+
+.cat-page__active-filters-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.cat-page__filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FFFFFF;
+  border: 1px solid var(--color-divider);
+  border-radius: 9999px;
+  padding: 0.22rem 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.cat-page__filter-chip:hover {
+  border-color: #111111;
+  color: #B91C1C;
+}
+
+.cat-page__clear-all-link {
+  background: none;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  margin-left: auto;
+}
+
+.cat-page__clear-all-link:hover {
+  color: var(--color-text);
 }
 
 /* Toolbar */
