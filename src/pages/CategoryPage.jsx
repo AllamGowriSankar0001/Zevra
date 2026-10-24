@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, X, RotateCcw } from 'lucide-react';
+import { Search, X, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import ScrollReveal from '../components/ScrollReveal';
 
@@ -102,128 +102,85 @@ export default function CategoryPage({ categoryId, categories, products, loading
     ...(product.variants || []).map(variant => variant.color).filter(Boolean),
   ]))].sort();
 
+  const currentTitle = meta.name || meta.label || 'Collection';
+
   return (
     <div className="cat-page">
-      {/* ── Seamless Luxury Editorial Header (No Dark Banner) ── */}
-      <ScrollReveal>
-        <header className="cat-page__header container">
-          {/* Breadcrumbs */}
-          <nav className="cat-page__breadcrumbs" aria-label="Breadcrumb">
-            <button
-              type="button"
-              className="cat-page__bc-link"
-              onClick={() => onCategoryChange('all')}
-            >
-              Home
-            </button>
-            <span className="cat-page__bc-sep">/</span>
-            <span>Collections</span>
-            {parentCategory && (
-              <>
-                <span className="cat-page__bc-sep">/</span>
-                <button
-                  type="button"
-                  className="cat-page__bc-link"
-                  onClick={() => onCategoryChange(parentCategory.id)}
-                >
-                  {parentCategory.label}
-                </button>
-              </>
-            )}
-            <span className="cat-page__bc-sep">/</span>
-            <span className="cat-page__bc-current">{meta.name || meta.label}</span>
-          </nav>
+      {/* ── Streamlined Luxury Category Header (Zero Wasted Space) ── */}
+      <div className="cat-page__body container">
+        <header className="cat-page__compact-bar">
+          <div className="cat-page__heading-group">
+            <h1 className="cat-page__compact-title">{currentTitle}</h1>
+            <span className="cat-page__count-pill">
+              {loading
+                ? 'Loading…'
+                : `${categoryProducts.length} ${categoryProducts.length === 1 ? 'item' : 'items'}`}
+            </span>
 
-          <div className="cat-page__header-main">
-            <span className="cat-page__eyebrow">Atelier Collection</span>
-            <h1 className="cat-page__title">{meta.name || meta.label}</h1>
-            {meta.description && <p className="cat-page__desc">{meta.description}</p>}
-
-            {/* Subcategory Pills */}
+            {/* Subcategory Pills inline */}
             {(subcategories.length > 0 || parentCategory) && (
-              <div className="cat-page__subcat-nav">
-                <span className="cat-page__subcat-label">Explore:</span>
-                <div className="cat-page__subcat-pills">
-                  {/* Parent Pill */}
-                  {parentCategory ? (
-                    <button
-                      type="button"
-                      className="cat-page__subcat-pill"
-                      onClick={() => onCategoryChange(parentCategory.id)}
-                    >
-                      All {parentCategory.label}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="cat-page__subcat-pill cat-page__subcat-pill--active"
-                      onClick={() => onCategoryChange(meta.id)}
-                    >
-                      All {meta.label}
-                    </button>
-                  )}
+              <div className="cat-page__subcat-pills-inline">
+                {parentCategory ? (
+                  <button
+                    type="button"
+                    className="cat-page__subcat-pill"
+                    onClick={() => onCategoryChange(parentCategory.id)}
+                  >
+                    All {parentCategory.label}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="cat-page__subcat-pill cat-page__subcat-pill--active"
+                    onClick={() => onCategoryChange(meta.id)}
+                  >
+                    All {meta.label}
+                  </button>
+                )}
 
-                  {/* Subcategories */}
-                  {(parentCategory ? categories.filter(c => c.parent === parentCategory.slug) : subcategories).map(sub => (
-                    <button
-                      key={sub.id}
-                      type="button"
-                      className={`cat-page__subcat-pill${sub.id === categoryId ? ' cat-page__subcat-pill--active' : ''}`}
-                      onClick={() => onCategoryChange(sub.id)}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
+                {(parentCategory ? categories.filter(c => c.parent === parentCategory.slug) : subcategories).map(sub => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    className={`cat-page__subcat-pill${sub.id === categoryId ? ' cat-page__subcat-pill--active' : ''}`}
+                    onClick={() => onCategoryChange(sub.id)}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
-        </header>
-      </ScrollReveal>
 
-      {/* ── Products & Search Toolbar ── */}
-      <ScrollReveal>
-        <div className="cat-page__body container">
+          {/* Search & Filter Toolbar */}
           <div className="cat-page__toolbar">
-            <div className="cat-page__toolbar-left">
-              {/* Product Search Input */}
-              <div className="cat-page__search-wrap">
-                <Search size={15} className="cat-page__search-icon" aria-hidden="true" />
-                <input
-                  type="search"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder={`Search in ${meta.name || meta.label || 'collection'}…`}
-                  className="cat-page__search-input"
-                  aria-label={`Search in ${meta.name || meta.label || 'collection'}`}
-                />
-                {search && (
-                  <button
-                    type="button"
-                    className="cat-page__search-clear"
-                    onClick={() => setSearch('')}
-                    title="Clear search"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              <span className="cat-page__count">
-                {loading
-                  ? 'Loading…'
-                  : search.trim()
-                    ? `${categoryProducts.length} ${categoryProducts.length === 1 ? 'result' : 'results'} for "${search.trim()}"`
-                    : `${categoryProducts.length} ${categoryProducts.length === 1 ? 'piece' : 'pieces'}`}
-              </span>
+            <div className="cat-page__search-wrap">
+              <Search size={15} className="cat-page__search-icon" aria-hidden="true" />
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder={`Search ${currentTitle.toLowerCase()}…`}
+                className="cat-page__search-input"
+                aria-label={`Search in ${currentTitle}`}
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="cat-page__search-clear"
+                  onClick={() => setSearch('')}
+                  title="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
             </div>
 
             <div className="cat-page__filters" aria-label="Filter products">
               {sizes.length > 0 && (
                 <label className="cat-page__filter">
-                  <span>Size</span>
                   <select value={size} onChange={e => setSize(e.target.value)}>
-                    <option value="">All sizes</option>
+                    <option value="">Size: All</option>
                     {sizes.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
                 </label>
@@ -231,114 +188,133 @@ export default function CategoryPage({ categoryId, categories, products, loading
 
               {colors.length > 0 && (
                 <label className="cat-page__filter">
-                  <span>Colour</span>
                   <select value={color} onChange={e => setColor(e.target.value)}>
-                    <option value="">All colours</option>
+                    <option value="">Colour: All</option>
                     {colors.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
                 </label>
               )}
 
-              <label className="cat-page__filter cat-page__filter--price">
-                <span>Min ₹</span>
-                <input type="number" min="0" inputMode="numeric" value={minPrice} placeholder="Min" onChange={e => setMinPrice(e.target.value)} />
-              </label>
-
-              <label className="cat-page__filter cat-page__filter--price">
-                <span>Max ₹</span>
-                <input type="number" min="0" inputMode="numeric" value={maxPrice} placeholder="Max" onChange={e => setMaxPrice(e.target.value)} />
-              </label>
+              <div className="cat-page__price-range">
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={minPrice}
+                  placeholder="Min ₹"
+                  className="cat-page__price-input"
+                  onChange={e => setMinPrice(e.target.value)}
+                  aria-label="Minimum price in rupees"
+                />
+                <span className="cat-page__price-sep">–</span>
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="numeric"
+                  value={maxPrice}
+                  placeholder="Max ₹"
+                  className="cat-page__price-input"
+                  onChange={e => setMaxPrice(e.target.value)}
+                  aria-label="Maximum price in rupees"
+                />
+              </div>
 
               <label className="cat-page__filter cat-page__filter--sort">
-                <span>Sort</span>
                 <select value={sort} onChange={e => setSort(e.target.value)}>
                   {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </label>
 
               {hasFilters && (
-                <button className="cat-page__reset" type="button" onClick={clearFilters}>
-                  <RotateCcw size={12} style={{ marginRight: '4px' }} />
-                  Clear
+                <button className="cat-page__reset" type="button" onClick={clearFilters} title="Reset all filters">
+                  <RotateCcw size={13} style={{ marginRight: '4px' }} />
+                  Reset
                 </button>
               )}
             </div>
           </div>
+        </header>
 
-          {/* Active Filter Chips */}
-          {hasFilters && (
-            <div className="cat-page__active-filters">
-              <span className="cat-page__active-filters-label">Active:</span>
-              {search.trim() && (
-                <button className="cat-page__filter-chip" onClick={() => setSearch('')}>
-                  <span>Search: "{search.trim()}"</span>
-                  <X size={12} />
-                </button>
-              )}
-              {size && (
-                <button className="cat-page__filter-chip" onClick={() => setSize('')}>
-                  <span>Size: {size}</span>
-                  <X size={12} />
-                </button>
-              )}
-              {color && (
-                <button className="cat-page__filter-chip" onClick={() => setColor('')}>
-                  <span>Colour: {color}</span>
-                  <X size={12} />
-                </button>
-              )}
-              {(minPrice || maxPrice) && (
-                <button className="cat-page__filter-chip" onClick={() => { setMinPrice(''); setMaxPrice(''); }}>
-                  <span>Price: ₹{minPrice || '0'} – ₹{maxPrice || '∞'}</span>
-                  <X size={12} />
-                </button>
-              )}
-              <button className="cat-page__clear-all-link" onClick={clearFilters}>
-                Clear all
+        {/* Active Filter Chips */}
+        {hasFilters && (
+          <div className="cat-page__active-filters">
+            <span className="cat-page__active-filters-label">Active:</span>
+            {search.trim() && (
+              <button className="cat-page__filter-chip" onClick={() => setSearch('')}>
+                <span>"{search.trim()}"</span>
+                <X size={12} />
               </button>
-            </div>
-          )}
+            )}
+            {size && (
+              <button className="cat-page__filter-chip" onClick={() => setSize('')}>
+                <span>Size: {size}</span>
+                <X size={12} />
+              </button>
+            )}
+            {color && (
+              <button className="cat-page__filter-chip" onClick={() => setColor('')}>
+                <span>Colour: {color}</span>
+                <X size={12} />
+              </button>
+            )}
+            {(minPrice || maxPrice) && (
+              <button className="cat-page__filter-chip" onClick={() => { setMinPrice(''); setMaxPrice(''); }}>
+                <span>₹{minPrice || '0'} – ₹{maxPrice || '∞'}</span>
+                <X size={12} />
+              </button>
+            )}
+            {sort !== 'default' && (
+              <button className="cat-page__filter-chip" onClick={() => setSort('default')}>
+                <span>Sort: {SORT_OPTIONS.find(o => o.value === sort)?.label}</span>
+                <X size={12} />
+              </button>
+            )}
+            <button className="cat-page__clear-all-link" onClick={clearFilters}>
+              Clear all
+            </button>
+          </div>
+        )}
 
-          {loading ? (
-            <div className="cat-page__empty" role="status"><p className="cat-page__empty-title">Loading the collection…</p></div>
-          ) : error ? (
-            <div className="cat-page__empty" role="alert"><p className="cat-page__empty-title">We couldn’t load this collection.</p><p>{error}</p></div>
-          ) : invalidPriceRange ? (
-            <div className="cat-page__empty" role="alert">
-              <p className="cat-page__empty-title">Check your price range.</p>
-              <p>The minimum price must not exceed the maximum price.</p>
-            </div>
-          ) : categoryProducts.length === 0 ? (
-            <div className="cat-page__empty">
-              <span className="cat-page__empty-mark" aria-hidden="true">Z</span>
-              <p className="cat-page__empty-title">
-                {search.trim() ? `No products match "${search.trim()}"` : 'This collection is coming soon.'}
-              </p>
-              <p>
-                {search.trim()
-                  ? 'Try checking for spelling errors or clearing filters to see more pieces.'
-                  : 'We’re preparing something special. Please check back soon.'}
-              </p>
-              {hasFilters && (
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ marginTop: '1.25rem', minHeight: '38px' }}
-                  onClick={clearFilters}
-                >
-                  Clear all filters
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="cat-page__grid">
-              {categoryProducts.map(product => (
-                <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
-              ))}
-            </div>
-          )}
-        </div>
-      </ScrollReveal>
+        {/* ── Product Grid ── */}
+        {loading ? (
+          <div className="cat-page__empty" role="status"><p className="cat-page__empty-title">Loading the collection…</p></div>
+        ) : error ? (
+          <div className="cat-page__empty" role="alert"><p className="cat-page__empty-title">We couldn’t load this collection.</p><p>{error}</p></div>
+        ) : invalidPriceRange ? (
+          <div className="cat-page__empty" role="alert">
+            <p className="cat-page__empty-title">Check your price range.</p>
+            <p>The minimum price must not exceed the maximum price.</p>
+          </div>
+        ) : categoryProducts.length === 0 ? (
+          <div className="cat-page__empty">
+            <span className="cat-page__empty-mark" aria-hidden="true">Z</span>
+            <p className="cat-page__empty-title">
+              {search.trim() ? `No products match "${search.trim()}"` : 'This collection is coming soon.'}
+            </p>
+            <p>
+              {search.trim()
+                ? 'Try checking for spelling errors or clearing filters to see more pieces.'
+                : 'We’re preparing something special. Please check back soon.'}
+            </p>
+            {hasFilters && (
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{ marginTop: '1.25rem', minHeight: '38px' }}
+                onClick={clearFilters}
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="cat-page__grid">
+            {categoryProducts.map(product => (
+              <ProductCard key={product.id || product._id} product={product} onQuickView={onQuickView} />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* ── Other Categories ── */}
       {otherCategories.length > 0 && (

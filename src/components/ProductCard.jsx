@@ -1,50 +1,160 @@
 import { useState } from 'react';
+import { Heart, Eye } from 'lucide-react';
 import { formatPrice } from '../data/products';
+import { wishlistApi } from '../services/api';
 import ProductIllustration from './ProductIllustration';
 
 export default function ProductCard({ product, onQuickView }) {
   const [imgError, setImgError] = useState({ primary: false, secondary: false });
-  const [primarySrc, secondarySrc] = product.images;
-  const showRealPrimary   = primarySrc   && !imgError.primary;
+  const [wishlisted, setWishlisted] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(product.colours?.[0]?.name || '');
+
+  const [primarySrc, secondarySrc] = product.images || [];
+  const showRealPrimary   = primarySrc && !imgError.primary;
   const showRealSecondary = secondarySrc && !imgError.secondary;
+
+  const availableSizes = [...new Set([
+    ...(product.sizes || []),
+    ...(product.variants || []).map(v => v.size).filter(Boolean),
+  ])].slice(0, 5);
+
+  async function handleToggleWishlist(e) {
+    e.stopPropagation();
+    const nextState = !wishlisted;
+    setWishlisted(nextState);
+    try {
+      if (nextState) {
+        await wishlistApi.add(product.id || product._id);
+      } else {
+        await wishlistApi.remove(product.id || product._id);
+      }
+    } catch {
+      // Graceful fallback for demo or guest mode
+    }
+  }
+
+  function handleSizeClick(e, size) {
+    e.stopPropagation();
+    onQuickView?.(product, null, { initialSize: size });
+  }
 
   return (
     <article
       className="product-card"
       aria-label={product.name}
-      onClick={() => onQuickView(product, null)}
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onQuickView(product, null); }}}
+      onClick={() => onQuickView?.(product, null)}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onQuickView?.(product, null); }}}
       role="button"
       tabIndex={0}
-      style={{ cursor: 'pointer' }}
     >
       <div className="product-card__image-wrap">
+        {/* Floating Wishlist Heart */}
+        <button
+          type="button"
+          className={`product-card__wishlist-btn${wishlisted ? ' active' : ''}`}
+          onClick={handleToggleWishlist}
+          title={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+        >
+          <Heart size={16} fill={wishlisted ? '#B91C1C' : 'none'} color={wishlisted ? '#B91C1C' : '#222222'} />
+        </button>
+
+        {/* Primary Image */}
         {showRealPrimary ? (
-          <img src={primarySrc} alt={product.name} className="product-card__img"
-            loading="lazy" width="600" height="800" decoding="async"
-            onError={() => setImgError(s => ({ ...s, primary: true }))} />
+          <img
+            src={primarySrc}
+            alt={product.name}
+            className="product-card__img"
+            loading="lazy"
+            width="600"
+            height="800"
+            decoding="async"
+            onError={() => setImgError(s => ({ ...s, primary: true }))}
+          />
         ) : (
-          <ProductIllustration productId={product.id} alt={product.name}
-            className="product-card__img product-card__illustration" />
+          <ProductIllustration
+            productId={product.id}
+            alt={product.name}
+            className="product-card__img product-card__illustration"
+          />
         )}
+
+        {/* Secondary Hover Image */}
         {showRealSecondary ? (
-          <img src={secondarySrc} alt="" className="product-card__img product-card__img-hover"
-            loading="lazy" width="600" height="800" decoding="async" aria-hidden="true"
-            onError={() => setImgError(s => ({ ...s, secondary: true }))} />
+          <img
+            src={secondarySrc}
+            alt=""
+            className="product-card__img product-card__img-hover"
+            loading="lazy"
+            width="600"
+            height="800"
+            decoding="async"
+            aria-hidden="true"
+            onError={() => setImgError(s => ({ ...s, secondary: true }))}
+          />
         ) : (
           <div className="product-card__img product-card__img-hover product-card__hover-tint" aria-hidden="true" />
         )}
+
+        {/* Interactive Hover Drawer: Quick View & Sizes */}
+        <div className="product-card__hover-actions" onClick={e => e.stopPropagation()}>
+          {availableSizes.length > 0 && (
+            <div className="product-card__quick-sizes">
+              <span className="product-card__quick-sizes-label">Sizes:</span>
+              <div className="product-card__quick-sizes-list">
+                {availableSizes.map(sz => (
+                  <button
+                    key={sz}
+                    type="button"
+                    className="product-card__size-pill"
+                    onClick={(e) => handleSizeClick(e, sz)}
+                    title={`Select size ${sz}`}
+                  >
+                    {sz}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="product-card__quick-view-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onQuickView?.(product, null);
+            }}
+          >
+            <Eye size={14} />
+            <span>Quick View</span>
+          </button>
+        </div>
       </div>
 
       <div className="product-card__info">
-        <span className="product-card__name">{product.name}</span>
-        <span className="product-card__price">{formatPrice(product.price)}</span>
-        {product.colours.length > 0 && (
-          <div className="product-card__colours" aria-label="Available colours">
+        <div className="product-card__name-row">
+          <span className="product-card__name">{product.name}</span>
+        </div>
+
+        <div className="product-card__meta-row">
+          <span className="product-card__price">{formatPrice(product.price)}</span>
+          {selectedColor && (
+            <span className="product-card__color-name">{selectedColor}</span>
+          )}
+        </div>
+
+        {product.colours?.length > 0 && (
+          <div className="product-card__colours" aria-label="Available colours" onClick={e => e.stopPropagation()}>
             {product.colours.map(c => (
-              <span key={c.name} className="product-card__swatch"
-                style={{ backgroundColor: c.hex }} title={c.name}
-                role="img" aria-label={c.name} />
+              <button
+                key={c.name}
+                type="button"
+                className={`product-card__swatch${selectedColor === c.name ? ' active' : ''}`}
+                style={{ backgroundColor: c.hex }}
+                title={c.name}
+                onClick={() => setSelectedColor(c.name)}
+                aria-label={c.name}
+              />
             ))}
           </div>
         )}
